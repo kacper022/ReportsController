@@ -3,7 +3,6 @@ package pl.reportsController.bootstrap;
 import lombok.val;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import pl.reportsController.reports.ReportEntity;
 import pl.reportsController.reports.ReportRepository;
 import pl.reportsController.users.UserEntity;
