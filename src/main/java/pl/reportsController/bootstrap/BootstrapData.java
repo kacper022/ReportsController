@@ -34,19 +34,29 @@ public class BootstrapData implements CommandLineRunner {
         val strojenietv = new ReportEntity();
         strojenietv.setName("Ustawienie TV");
         strojenietv.setDescription("Klient prosi o ustawienie programow TV");
-        strojenietv.setAddress("Czekoladowa 15");
+        strojenietv.setAddress("Czekoladowa 37");
 
+        val naprawaInstalacji = new ReportEntity();
+        naprawaInstalacji.setName("Poprawa instalacji");
+        naprawaInstalacji.setDescription("Zlecona naprawa instalacji");
+        naprawaInstalacji.setAddress("Morelowa 21");
+
+        //Add report to user
         kacper.getReportEntities().add(strojenietv);
         testowy.getReportEntities().add(strojenietv);
+
+        //Add user to report
         strojenietv.getUsersRealisingReport().add(kacper);
         strojenietv.getUsersRealisingReport().add(testowy);
 
+        //Save all repositories
         userRepository.save(kacper);
         userRepository.save(testowy);
         reportRepository.save(strojenietv);
+        reportRepository.save(naprawaInstalacji);
 
         System.out.println("\n\n==========================================");
-        System.out.println("=========  STARTED IN BOOTSTRAP  =========");
+        System.out.println("=============  STARTED  ==================");
         System.out.println("==========================================");
 
     }

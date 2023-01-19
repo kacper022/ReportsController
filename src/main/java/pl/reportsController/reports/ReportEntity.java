@@ -43,4 +43,18 @@ public class ReportEntity {
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "ReportEntity{" +
+                "ID=" + id +
+                ", createDate='" + createDate + '\'' +
+                ", endDate='" + endDate + '\'' +
+                ", updateDate='" + updateDate + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", address='" + address + '\'' +
+                ", usersRealisingReport=" + usersRealisingReport +
+                '}';
+    }
 }

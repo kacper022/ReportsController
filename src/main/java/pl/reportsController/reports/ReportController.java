@@ -1,6 +1,10 @@
 package pl.reportsController.reports;
 
+import ch.qos.logback.core.net.server.Client;
 import org.springframework.web.bind.annotation.*;
+import pl.reportsController.users.UserEntity;
+
+import java.net.URISyntaxException;
 
 @RestController
 @RequestMapping("/reports")
@@ -20,5 +24,21 @@ public class ReportController {
     @GetMapping("/{id}")
     public ReportEntity getReportById(@PathVariable Long id){
         return reportRepository.findById(id).orElseThrow(RuntimeException::new);
+    }
+
+    @GetMapping("/name={name}")
+    public Iterable<ReportEntity> getRepotrsByName(@PathVariable String name){
+        return reportRepository.findByNameAllIgnoreCase(name);
+    }
+
+    @PostMapping
+    public void createNewReport(@RequestBody ReportEntity reportEntity) throws URISyntaxException {
+        ReportEntity savedReportEntity = reportRepository.save(reportEntity);
+        System.out.println("Created new report");
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteReportById(@PathVariable Long id){
+        reportRepository.deleteById(id);
     }
 }
