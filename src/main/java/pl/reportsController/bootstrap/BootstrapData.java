@@ -3,10 +3,13 @@ package pl.reportsController.bootstrap;
 import lombok.val;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import pl.reportsController.addresses.AddressEntity;
 import pl.reportsController.reports.ReportEntity;
 import pl.reportsController.reports.ReportRepository;
 import pl.reportsController.users.UserEntity;
 import pl.reportsController.users.UserRepository;
+
+import java.util.Set;
 
 @Component
 public class BootstrapData implements CommandLineRunner {
@@ -34,12 +37,7 @@ public class BootstrapData implements CommandLineRunner {
         val strojenietv = new ReportEntity();
         strojenietv.setName("Ustawienie TV");
         strojenietv.setDescription("Klient prosi o ustawienie programow TV");
-        strojenietv.setAddress("Czekoladowa 37");
 
-        val naprawaInstalacji = new ReportEntity();
-        naprawaInstalacji.setName("Poprawa instalacji");
-        naprawaInstalacji.setDescription("Zlecona naprawa instalacji");
-        naprawaInstalacji.setAddress("Morelowa 21");
 
         //Add report to user
         kacper.getReportEntities().add(strojenietv);
@@ -53,7 +51,6 @@ public class BootstrapData implements CommandLineRunner {
         userRepository.save(kacper);
         userRepository.save(testowy);
         reportRepository.save(strojenietv);
-        reportRepository.save(naprawaInstalacji);
 
         System.out.println("\n\n==========================================");
         System.out.println("=============  STARTED  ==================");

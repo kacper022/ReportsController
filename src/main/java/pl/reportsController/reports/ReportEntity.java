@@ -2,6 +2,7 @@ package pl.reportsController.reports;
 
 import jakarta.persistence.*;
 import lombok.*;
+import pl.reportsController.customers.CustomerEntity;
 import pl.reportsController.users.UserEntity;
 
 import java.util.HashSet;
@@ -23,11 +24,14 @@ public class ReportEntity {
     private String updateDate;
     private String name;
     private String description;
-    private String address;
 
     @ManyToMany
     @JoinTable(name = "user_report", joinColumns = @JoinColumn(name = "report_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<UserEntity> usersRealisingReport = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(name = "reportedProblems", joinColumns = @JoinColumn(name = "report_id"), inverseJoinColumns = @JoinColumn(name = "customer_id"))
+    private Set<CustomerEntity> problemsRepotredByCustomer = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {
@@ -53,7 +57,6 @@ public class ReportEntity {
                 ", updateDate='" + updateDate + '\'' +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", address='" + address + '\'' +
                 ", usersRealisingReport=" + usersRealisingReport +
                 '}';
     }
