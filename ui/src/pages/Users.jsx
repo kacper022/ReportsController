@@ -9,7 +9,7 @@ function Users() {
   
     return (
       <div>
-        <table className="table table-light, text-center">
+        <table className="table table-bordered table-light, text-center">
           <thead>
           <tr>
             <td>ID</td><td>FIRST NAME</td><td>LAST NAME</td><td>Skasuj</td>

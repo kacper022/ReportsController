@@ -7,6 +7,8 @@ import Layout from "./pages/Layout";
 import Home from "./pages/Home";
 import Reports from "./pages/Reports";
 import Users from "./pages/Users";
+import Customers from "./pages/Customers";
+import Addresses from './pages/Addresses';
 import NoPage from "./pages/NoPage";
 
 
@@ -18,6 +20,8 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path="Reports" element={<Reports />} />
           <Route path="Users" element={<Users />} />
+          <Route path="Customers" element={<Customers />} />
+          <Route path="Addresses" element={<Addresses />} />
           <Route path="*" element={<NoPage />} />
         </Route>
       </Routes>

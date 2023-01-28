@@ -2,8 +2,8 @@ import React from 'react';
 import useFetch from "react-fetch-hook";
 import {Table, Button} from 'react-bootstrap'
 
-function Reports() {
-    const { isLoading, data, error} = useFetch("/reports");
+function Customers() {
+    const { isLoading, data, error} = useFetch("/customers");
     if (isLoading) return <div>Loading...</div>
     if (error) return<div>{`There is a problem fetching the post data - ${error}`}</div>
   
@@ -12,19 +12,21 @@ function Reports() {
         <table className="table table-bordered table-light, text-center">
           <thead>
           <tr>
-            <td>ID</td><td>Nazwa</td><td>Opis</td><td>Skasuj</td>
+            <td>ID</td>
+            <td>Imie</td>
+            <td>Nazwisko</td>
+            <td>Skasuj</td>
           </tr>
           </thead>
           <tbody>
-          {data.map((report) =>
-            {return (<tr key={report.id}>
-              <td>{report.id}</td>
-              <td>{report.name}</td>
-              <td>{report.description}</td>
-              <td>
-                <Button variant="danger" size="sm" >
-                  Delete
-                </Button>{''}
+          {data.map((customer) =>
+            {return (<tr key={customer.id}>
+              <td>{customer.id}</td>
+              <td>{customer.firstName}</td>
+              <td>{customer.lastName}</td>
+              <td><Button variant="danger" size="sm">
+                Delete
+              </Button>{''}
               </td>
             </tr>)}
           )}
@@ -34,4 +36,4 @@ function Reports() {
     )
 }
 
-export default Reports;
+export default Customers;

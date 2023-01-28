@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Route, Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 
 function Navbar() {
   return (
@@ -13,6 +13,12 @@ function Navbar() {
         </li>
         <li>
           <Link to="/Reports">Reports</Link>
+        </li>
+        <li>
+          <Link to="/Customers">Customers</Link>
+        </li>
+        <li>
+          <Link to="/Addresses">Addresses</Link>
         </li>
       </ul>
     </nav>
