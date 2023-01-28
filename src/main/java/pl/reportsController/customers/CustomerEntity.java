@@ -1,5 +1,6 @@
 package pl.reportsController.customers;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +11,7 @@ import pl.reportsController.reports.ReportEntity;
 import java.util.HashSet;
 import java.util.Set;
 
-@Table(name = "'customer'")
+@Table(name = "`customer`")
 @Data
 @Entity
 @NoArgsConstructor
@@ -21,29 +22,25 @@ public class CustomerEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "customerHomeAddress")
     private Set<AddressEntity> customerAddresses = new HashSet<>();
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "problemsRepotredByCustomer")
     private Set<ReportEntity> customerReports = new HashSet<>();
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
 
     private String firstName;
     private String lastName;
 
+    @Override
+    public String toString() {
+        return "CustomerEntity{" +
+                "id=" + id +
+                ", customerAddresses=" + customerAddresses +
+                ", customerReports=" + customerReports +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                '}';
+    }
 }

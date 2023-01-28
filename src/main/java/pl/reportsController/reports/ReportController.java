@@ -1,9 +1,6 @@
 package pl.reportsController.reports;
 
-import ch.qos.logback.core.net.server.Client;
 import org.springframework.web.bind.annotation.*;
-import pl.reportsController.users.UserEntity;
-
 import java.net.URISyntaxException;
 
 @RestController
