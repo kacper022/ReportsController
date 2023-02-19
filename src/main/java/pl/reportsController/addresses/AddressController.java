@@ -28,7 +28,7 @@ public class AddressController {
         return addressRepository.findById(id).orElseThrow(RuntimeException::new);
     }
 
-    @PostMapping("/addAddress")
+    @PostMapping("/add")
     public ResponseEntity<String> addAddress(
             @RequestParam("street") String street,
             @RequestParam("streetNumber") String streetNumber,
@@ -41,7 +41,7 @@ public class AddressController {
         return new ResponseEntity<>("Address added to database", HttpStatus.OK);
     }
 
-    @DeleteMapping("/deleteAddress={id}")
+    @DeleteMapping("/delete={id}")
     public void deleteAddressById(@PathVariable Long id){
         if(!addressRepository.existsById(id)){
             throw new RuntimeException();

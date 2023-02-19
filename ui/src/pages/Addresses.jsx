@@ -1,66 +1,33 @@
 import React from 'react';
 import useFetch from "react-fetch-hook";
-import {Button, Container} from 'react-bootstrap'
-import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import {Button, Form} from 'react-bootstrap'
+import {deleteFromDatabase, addToDatabase} from './scripts/databaseOperations';
+import { useState } from 'react';
 
-function succesToast(text){
-  toast.success(text,{
-    position: "bottom-center",
-    autoClose: 100000,
-    hideProgressBar: true,
-    closeOnClick: true,
-    pauseOnHover: false,
-    draggable: true,
-    progress: undefined,
-    theme: "light",
-    });  
-}
-
-
-async function deleteAddress(id){
-  axios.delete(`/addresses/deleteAddress=${id}`,{
-    method: "POST"
-  });
-
-  toast.error('Skasowano adres', {
-    position: "bottom-center",
-    autoClose: 100000,
-    hideProgressBar: true,
-    closeOnClick: true,
-    pauseOnHover: false,
-    draggable: true,
-    progress: undefined,
-    theme: "light",
-    });
-
-    await window.location.reload(false);
-}
-
-async function addAddressToDatabase(dataForm){
-  axios.post(`/addresses/addAddress`, dataForm)
-  .then(function (response) {
-    succesToast("Pomyślnie dodano adres do bazy");
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
-
-  await window.location.reload(false);
-}
+const API_URL = "/addresses"
 
 function Addresses() {
-    const { isLoading, data, error} = useFetch("/addresses");
-    if (isLoading) return <div>Loading...</div>
-    if (error) return<div>{`There is a problem fetching the post data - ${error}`}</div>
+    const { isLoading, data, error} = useFetch(API_URL);
+    const [city, setCity] = useState(' ');
+    const [zipCode, setZipCode] = useState(' ');
+    const [street, setStreet] = useState(' ');
+    const [streetNumber, setStreetNumber] = useState(' ');
+    const [apartmentNumber, setApartmentNumber] = useState(' ');
 
-    const formData = new FormData();
-    formData.append("city", "Zagan");
-    formData.append("zipCode", "68-100");
-    formData.append("street","Morelowa");
-    formData.append("streetNumber","12");
-    formData.append("apartmentNumber", "21");
+    if (isLoading) return <div>Pobieranie danych...</div>
+    if (error) return<div>{`Problem podczas odczytu danych - ${error}`}</div>
+
+    const dataToSend = new FormData();
+    
+    const submitButtonClick = () => {
+      dataToSend.append("city", city);
+      dataToSend.append("street", street);
+      dataToSend.append("zipCode", zipCode);
+      dataToSend.append("streetNumber", streetNumber);
+      dataToSend.append("apartmentNumber", apartmentNumber);
+
+      addToDatabase(API_URL, dataToSend);
+    }
 
     return (
       <div>
@@ -89,27 +56,41 @@ function Addresses() {
               </Button>
               </td>
               <td>
-                <Button variant='danger' size='sm' onClick={() => deleteAddress(address.id)}>Kasuj</Button>
+                <Button variant='danger' size='sm' onClick={() => deleteFromDatabase(API_URL,address.id)}>Kasuj</Button>
               </td>
             </tr>)}
           )}
           </tbody>
         </table>
 
-        <div>
-          <table className='table table-bordered table-light, text-center'>
-            <tbody>
-              <tr>
-                <td>Ulica</td>
-                <td>Numer domu</td>
-                <td>Numer mieszkania</td>
-              </tr>
-              
-            </tbody>
-          </table>
-          <Button className='btn-success' size='sm' onClick={() => addAddressToDatabase(formData)}>Dodaj adres</Button>
-          <ToastContainer />
-        </div>
+        <Form onSubmit={submitButtonClick}>
+          <div className="form-group">
+            <label htmlFor='city'>Miasto</label>
+            <input id='city' name='city' type='text' className="form-control" placeholder='Miasto' onChange={event => setCity(event.target.value)}></input>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor='zipCode'>Kod pocztowy</label>
+            <input id='zipCode' name='zipCode' type='text' className="form-control" placeholder='Kod pocztowy' onChange={event => setZipCode(event.target.value)}></input>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor='street'>Ulica</label>
+            <input id='street' name='street' type='text' className="form-control" placeholder='Ulica/Aleja' onChange={event => setStreet(event.target.value)}></input>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor='streetNumber'>Nr. budynku</label>
+            <input id='streetNumber' name='streetNumber' type='text' className="form-control" placeholder='Numer budynku' onChange={event => setStreetNumber(event.target.value)}></input>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor='apartmentNumber'>Nr. mieszkania</label>
+            <input id='apartmentNumber' name='apartmentNumber' type='text' className="form-control" placeholder='Numer mieszkania' onChange={event => setApartmentNumber(event.target.value)}></input>
+          </div>
+
+          <Button type="submit" className='btn-sm'>Dodaj adres</Button>
+        </Form>
       </div>
     )
 }

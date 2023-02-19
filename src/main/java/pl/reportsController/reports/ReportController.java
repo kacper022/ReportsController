@@ -1,6 +1,8 @@
 package pl.reportsController.reports;
 
 import org.springframework.web.bind.annotation.*;
+import pl.reportsController.addresses.AddressRepository;
+
 import java.net.URISyntaxException;
 
 @RestController
@@ -8,9 +10,12 @@ import java.net.URISyntaxException;
 public class ReportController {
 
     private final ReportRepository reportRepository;
+    private final AddressRepository addressRepository;
 
-    public ReportController(ReportRepository reportRepository) {
+    public ReportController(ReportRepository reportRepository,
+                            AddressRepository addressRepository) {
         this.reportRepository = reportRepository;
+        this.addressRepository = addressRepository;
     }
 
     @GetMapping
@@ -34,8 +39,12 @@ public class ReportController {
         System.out.println("Created new report");
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete={id}")
     public void deleteReportById(@PathVariable Long id){
-        reportRepository.deleteById(id);
+        if(!reportRepository.existsById(id)){
+            throw new RuntimeException();
+        } else {
+            reportRepository.deleteById(id);
+        }
     }
 }

@@ -24,6 +24,8 @@ public class UserEntity {
     private String lastName;
     private String password;
 
+    private int isUserActive;
+
     public String getPassword() {
         return password;
     }
@@ -46,6 +48,14 @@ public class UserEntity {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public int getIsUserActive() {
+        return isUserActive;
+    }
+
+    public void setIsUserActive(int isUserActive) {
+        this.isUserActive = isUserActive;
     }
 
     @JsonIgnore

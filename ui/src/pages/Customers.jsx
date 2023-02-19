@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import useFetch from "react-fetch-hook";
 import {Table, Button} from 'react-bootstrap'
+import {deleteFromDatabase, addToDatabase} from './scripts/databaseOperations';
+
+const API_URL = "/customers";
 
 function Customers() {
-    const { isLoading, data, error} = useFetch("/customers");
-    if (isLoading) return <div>Loading...</div>
-    if (error) return<div>{`There is a problem fetching the post data - ${error}`}</div>
+    const { isLoading, data, error} = useFetch(API_URL);
+    
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+
+    if (isLoading) return <div>Pobieranie danych...</div>
+    if (error) return<div>{`Problem podczas odczytu danych - ${error}`}</div>
   
     return (
       <div>
@@ -24,9 +31,8 @@ function Customers() {
               <td>{customer.id}</td>
               <td>{customer.firstName}</td>
               <td>{customer.lastName}</td>
-              <td><Button variant="danger" size="sm">
-                Delete
-              </Button>{''}
+              <td>
+                <Button variant='danger' size='sm' onClick={() => deleteFromDatabase(API_URL,customer.id)}>Skasuj</Button>  
               </td>
             </tr>)}
           )}

@@ -2,10 +2,12 @@ import React from 'react';
 import useFetch from "react-fetch-hook";
 import {Table, Button} from 'react-bootstrap'
 
+const API_URL = "/users";
+
 function Users() {
-    const { isLoading, data, error} = useFetch("/users");
-    if (isLoading) return <div>Loading...</div>
-    if (error) return<div>{`There is a problem fetching the post data - ${error}`}</div>
+    const { isLoading, data, error} = useFetch(API_URL);
+    if (isLoading) return <div>Pobieranie danych...</div>
+    if (error) return<div>{`Problem podczas odczytu danych - ${error}`}</div>
   
     return (
       <div>

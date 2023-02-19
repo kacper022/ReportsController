@@ -2,7 +2,7 @@ import React from 'react';
 
 function ErrorPage() {
     return (
-        <h1>This is the error page</h1>
+        <h1>Brak dostępu do danej treści</h1>
     );
 }
 

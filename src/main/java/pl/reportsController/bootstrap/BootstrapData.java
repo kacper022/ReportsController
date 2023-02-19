@@ -12,7 +12,10 @@ import pl.reportsController.reports.ReportRepository;
 import pl.reportsController.users.UserEntity;
 import pl.reportsController.users.UserRepository;
 
+import java.text.DateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -27,6 +30,7 @@ public class BootstrapData implements CommandLineRunner {
         this.userRepository = userRepository;
         this.customerRepository = customerRepository;
         this.addressRepository = addressRepository;
+
     }
 
     @Override
@@ -66,6 +70,10 @@ public class BootstrapData implements CommandLineRunner {
         strojenietv.setName("Ustawienie TV");
         strojenietv.setDescription("Klient prosi o ustawienie programow TV");
         strojenietv.getProblemsRepotredByCustomer().add(janusz);
+        Date date = new Date();
+        String df = DateFormat.getDateTimeInstance().format(date);
+        strojenietv.setCreateDate(df);
+        strojenietv.setUpdateDate(df);
 
         //Add report to user
         kacper.getReportEntities().add(strojenietv);

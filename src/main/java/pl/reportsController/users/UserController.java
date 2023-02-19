@@ -1,9 +1,6 @@
 package pl.reportsController.users;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
@@ -23,5 +20,14 @@ public class UserController {
     @GetMapping("/{id}")
     public UserEntity getUserById(@PathVariable Long id){
         return userRepository.findById(id).orElseThrow(RuntimeException::new);
+    }
+
+    @DeleteMapping("delete={id}")
+    public void deleteUserById(@PathVariable Long id){
+        if(userRepository.existsById(id)){
+            throw new RuntimeException();
+        } else {
+            userRepository.deleteById(id);
+        }
     }
 }
