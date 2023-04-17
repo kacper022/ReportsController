@@ -5,6 +5,7 @@ import lombok.*;
 import pl.reportsController.customers.CustomerEntity;
 import pl.reportsController.users.UserEntity;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -19,9 +20,9 @@ public class ReportEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String createDate;
-    private String endDate;
-    private String updateDate;
+    private Date createDate;
+    private Date endDate;
+    private Date updateDate;
     private String name;
     private String description;
 
