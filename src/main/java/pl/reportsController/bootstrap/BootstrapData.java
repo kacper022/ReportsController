@@ -40,7 +40,7 @@ public class BootstrapData implements CommandLineRunner {
         val kacper = new UserEntity();
         kacper.setFirstName("Kacper");
         kacper.setLastName("Kacper");
-        kacper.setPassword("test");
+        kacper.setPassword("Test");
 
         val testowy = new UserEntity();
         testowy.setFirstName("Uzytkownik");
@@ -72,8 +72,8 @@ public class BootstrapData implements CommandLineRunner {
         strojenietv.getProblemsRepotredByCustomer().add(janusz);
         Date date = new Date();
         String df = DateFormat.getDateTimeInstance().format(date);
-        strojenietv.setCreateDate(df);
-        strojenietv.setUpdateDate(df);
+        strojenietv.setCreateDate(date);
+        strojenietv.setUpdateDate(date);
 
         //Add report to user
         kacper.getReportEntities().add(strojenietv);

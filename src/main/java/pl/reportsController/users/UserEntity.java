@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.reportsController.passwords.PasswordHashing;
 import pl.reportsController.reports.ReportEntity;
 
 import java.util.HashSet;
@@ -31,7 +32,7 @@ public class UserEntity {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = PasswordHashing.HashPassword(password);
     }
 
     public String getFirstName() {
