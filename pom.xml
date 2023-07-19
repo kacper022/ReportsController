@@ -55,6 +55,12 @@
 			<version>RELEASE</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>30.1-jre</version> <!-- lub wyższa dostępna wersja -->
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -62,6 +68,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>3.0.1</version>
 			</plugin>
 		</plugins>
 	</build>
