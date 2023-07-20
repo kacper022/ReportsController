@@ -7,25 +7,27 @@ import pl.reportsController.addresses.AddressEntity;
 import pl.reportsController.addresses.AddressRepository;
 import pl.reportsController.customers.CustomerEntity;
 import pl.reportsController.customers.CustomerRepository;
+import pl.reportsController.passwords.PasswordHashing;
 import pl.reportsController.reports.ReportEntity;
 import pl.reportsController.reports.ReportRepository;
 import pl.reportsController.users.UserEntity;
 import pl.reportsController.users.UserRepository;
+import pl.reportsController.users.UserRole;
 
 import java.text.DateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Component
 public class BootstrapData implements CommandLineRunner {
-    private ReportRepository reportRepository;
-    private UserRepository userRepository;
-    private CustomerRepository customerRepository;
-    private AddressRepository addressRepository;
+    private final ReportRepository reportRepository;
+    private final UserRepository userRepository;
+    private final CustomerRepository customerRepository;
+    private final AddressRepository addressRepository;
 
-    public BootstrapData(ReportRepository reportRepository, UserRepository userRepository, CustomerRepository customerRepository, AddressRepository addressRepository){
+    public BootstrapData(ReportRepository reportRepository, UserRepository userRepository,
+                         CustomerRepository customerRepository, AddressRepository addressRepository) {
         this.reportRepository = reportRepository;
         this.userRepository = userRepository;
         this.customerRepository = customerRepository;
@@ -34,25 +36,21 @@ public class BootstrapData implements CommandLineRunner {
     }
 
     @Override
-    public  void run(String... args) throws Exception{
+    public void run(String... args) throws Exception {
 
         //Creating test users
-        val kacper = new UserEntity();
-        kacper.setFirstName("Kacper");
-        kacper.setLastName("Kacper");
-        kacper.setPassword("Test");
-
-        val testowy = new UserEntity();
-        testowy.setFirstName("Uzytkownik");
-        testowy.setLastName("Testowy");
-        testowy.setPassword("test");
+        val kacper = new UserEntity("Kacper", "Kuczminski", "admin", PasswordHashing.HashPassword("admin"), "kcpr543" +
+                "@gmail.com", UserRole.ADMINISTRATOR,
+                                    1);
+        val testowy = new UserEntity("User", "Userowski", "user", PasswordHashing.HashPassword("user"), "user@user" +
+                ".pl", UserRole.CUSTOMER, 1);
 
         //Create address
         List<AddressEntity> listaAdresow = new ArrayList<>();
-        val ulica = new AddressEntity("Morelowa", "12", "1","Warszawa","00-001");
-        val ulica1= new AddressEntity("Czekoladowa", "22", "","Warszawa","00-002");
-        val ulica2 = new AddressEntity("Zielona", "2", "10","Zielona Góra","66-002");
-        val ulica3 = new AddressEntity("Cerwona", "1", "1","Toruń"," 87-100");
+        val ulica = new AddressEntity("Morelowa", "12", "1", "Warszawa", "00-001");
+        val ulica1 = new AddressEntity("Czekoladowa", "22", "", "Warszawa", "00-002");
+        val ulica2 = new AddressEntity("Zielona", "2", "10", "Zielona Góra", "66-002");
+        val ulica3 = new AddressEntity("Cerwona", "1", "1", "Toruń", " 87-100");
         listaAdresow.add(ulica);
         listaAdresow.add(ulica1);
         listaAdresow.add(ulica2);
@@ -91,10 +89,10 @@ public class BootstrapData implements CommandLineRunner {
         userRepository.save(kacper);
         userRepository.save(testowy);
 
-        for (var adres:listaAdresow) {
+        for (var adres : listaAdresow) {
             addressRepository.save(adres);
         }
-        
+
         customerRepository.save(janusz);
         reportRepository.save(strojenietv);
 
