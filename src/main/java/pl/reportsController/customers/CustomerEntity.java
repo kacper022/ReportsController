@@ -10,6 +10,7 @@ import pl.reportsController.addresses.AddressRepository;
 import pl.reportsController.reports.ReportEntity;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Table(name = "`customer`")
@@ -23,35 +24,26 @@ public class CustomerEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "customerHomeAddress")
-    private Set<AddressEntity> customerAddresses = new HashSet<>();
-
-    @JsonIgnore
-    @ManyToMany(mappedBy = "problemsRepotredByCustomer")
-    private Set<ReportEntity> customerReports = new HashSet<>();
-
     private String firstName;
     private String lastName;
+    private Long id_user;
 
-    public CustomerEntity(String firstName, String lastName, Set<AddressEntity> customerAddresses) {
-        this.customerAddresses = customerAddresses;
-        this.firstName = firstName;
-        this.lastName = lastName;
+
+    public CustomerEntity(String firstName, String lastName, Long id_user) {
+        setFirstName(firstName);
+        setLastName(lastName);
+        setId_user(id_user);
     }
 
     public CustomerEntity(String firstName, String lastName, long idAddressEntity) {
         AddressRepository addressRepository = null;
         String city = addressRepository.findById(idAddressEntity).toString();
-
     }
 
     @Override
     public String toString() {
         return "CustomerEntity{" +
                 "id=" + id +
-                ", customerAddresses=" + customerAddresses +
-                ", customerReports=" + customerReports +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 '}';

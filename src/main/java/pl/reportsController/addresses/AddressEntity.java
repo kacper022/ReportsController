@@ -21,11 +21,6 @@ public class AddressEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @JsonIgnore
-    @ManyToMany
-    @JoinTable(name = "customerAddress", joinColumns = @JoinColumn(name = "address_id"), inverseJoinColumns = @JoinColumn(name = "customer_id"))
-    private Set<CustomerEntity> customerHomeAddress = new HashSet<>();
-
     private String city;
     private String zipCode;
     private String street;
@@ -49,7 +44,6 @@ public class AddressEntity {
     public String toString() {
         return "AddressEntity{" +
                 "id=" + id +
-                ", customerHomeAddress=" + customerHomeAddress +
                 ", city='" + city + '\'' +
                 ", zipCode='" + zipCode + '\'' +
                 ", street='" + street + '\'' +

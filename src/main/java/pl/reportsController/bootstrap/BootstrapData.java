@@ -10,11 +10,11 @@ import pl.reportsController.customers.CustomerRepository;
 import pl.reportsController.passwords.PasswordHashing;
 import pl.reportsController.reports.ReportEntity;
 import pl.reportsController.reports.ReportRepository;
+import pl.reportsController.reports.ReportsStatus;
 import pl.reportsController.users.UserEntity;
 import pl.reportsController.users.UserRepository;
 import pl.reportsController.users.UserRole;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,18 +32,23 @@ public class BootstrapData implements CommandLineRunner {
         this.userRepository = userRepository;
         this.customerRepository = customerRepository;
         this.addressRepository = addressRepository;
-
     }
 
     @Override
     public void run(String... args) throws Exception {
 
+        List<UserEntity> users = new ArrayList();
+
         //Creating test users
         val kacper = new UserEntity("Kacper", "Kuczminski", "admin", PasswordHashing.HashPassword("admin"), "kcpr543" +
                 "@gmail.com", UserRole.ADMINISTRATOR,
                                     1);
-        val testowy = new UserEntity("User", "Userowski", "user", PasswordHashing.HashPassword("user"), "user@user" +
+        users.add(kacper);
+        val user = new UserEntity("User", "Userowski", "user", PasswordHashing.HashPassword("user"), "user@user" +
                 ".pl", UserRole.CUSTOMER, 1);
+        users.add(user);
+        userRepository.saveAll(users);
+
 
         //Create address
         List<AddressEntity> listaAdresow = new ArrayList<>();
@@ -51,50 +56,17 @@ public class BootstrapData implements CommandLineRunner {
         val ulica1 = new AddressEntity("Czekoladowa", "22", "", "Warszawa", "00-002");
         val ulica2 = new AddressEntity("Zielona", "2", "10", "Zielona Góra", "66-002");
         val ulica3 = new AddressEntity("Cerwona", "1", "1", "Toruń", " 87-100");
-        listaAdresow.add(ulica);
-        listaAdresow.add(ulica1);
-        listaAdresow.add(ulica2);
-        listaAdresow.add(ulica3);
+        listaAdresow.addAll(List.of(new AddressEntity[]{ulica, ulica1,ulica2,ulica3}));
+        addressRepository.saveAll(listaAdresow);
 
         //Creating simple customer
         val janusz = new CustomerEntity();
         janusz.setFirstName("Janusz");
         janusz.setLastName("Nowak");
-        janusz.getCustomerAddresses().add(ulica);
-        //ulica.getCustomerHomeAddress().add(janusz);
 
-        //Creating test reports
-        val strojenietv = new ReportEntity();
-        strojenietv.setName("Ustawienie TV");
-        strojenietv.setDescription("Klient prosi o ustawienie programow TV");
-        strojenietv.getProblemsRepotredByCustomer().add(janusz);
-        Date date = new Date();
-        String df = DateFormat.getDateTimeInstance().format(date);
-        strojenietv.setCreateDate(date);
-        strojenietv.setUpdateDate(date);
-
-        //Add report to user
-        kacper.getReportEntities().add(strojenietv);
-        testowy.getReportEntities().add(strojenietv);
-
-        //Add report to customer
-        janusz.getCustomerReports().add(strojenietv);
-
-        //Add user to report
-        strojenietv.getUsersRealisingReport().add(kacper);
-        strojenietv.getUsersRealisingReport().add(testowy);
-        strojenietv.getProblemsRepotredByCustomer().add(janusz);
-
-        //Save all repositories
-        userRepository.save(kacper);
-        userRepository.save(testowy);
-
-        for (var adres : listaAdresow) {
-            addressRepository.save(adres);
-        }
-
-        customerRepository.save(janusz);
-        reportRepository.save(strojenietv);
+        val usterka = new ReportEntity("Nazwa usterki", "Opis usterki", ReportsStatus.NEW, user.getId(), kacper.getId(),
+                                           new Date(), new Date());
+        reportRepository.save(usterka);
 
         System.out.println("\n\n==========================================");
         System.out.println("=============  STARTED  ==================");

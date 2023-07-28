@@ -16,23 +16,54 @@ import java.util.Set;
 @NoArgsConstructor
 public class ReportEntity {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private String name;
+    private String description;
+    private Long clientId;
+    private Long usersRealisingReport;
 
+    private ReportsStatus reportsStatus;
     private Date createDate;
     private Date endDate;
     private Date updateDate;
-    private String name;
-    private String description;
 
-    @ManyToMany
-    @JoinTable(name = "user_report", joinColumns = @JoinColumn(name = "report_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<UserEntity> usersRealisingReport = new HashSet<>();
+    @Column(nullable = true)
+    private String reportPhoto;
 
-    @ManyToMany
-    @JoinTable(name = "reportedProblems", joinColumns = @JoinColumn(name = "report_id"), inverseJoinColumns = @JoinColumn(name = "customer_id"))
-    private Set<CustomerEntity> problemsRepotredByCustomer = new HashSet<>();
+
+    public ReportEntity(String name, String description, Long clientId, Date createDate, Date updateDate){
+        this.name = name;
+        this.description = description;
+        this.clientId = clientId;
+        this.createDate = createDate;
+        this.updateDate = updateDate;
+    }
+    public ReportEntity(String name, String description, Long clientId, Long usersRealisingReport, Date createDate,
+                        Date updateDate){
+        this.name = name;
+        this.description = description;
+        this.clientId = clientId;
+        this.usersRealisingReport = usersRealisingReport;
+        this.createDate = createDate;
+        this.updateDate = updateDate;
+    }
+
+    public ReportEntity(String name, String description, ReportsStatus reportsStatus, Long clientId,
+                        Long usersRealisingReport,
+                        Date createDate,
+                        Date updateDate){
+        setName(name);
+        setDescription(description);
+        setClientId(clientId);
+        setReportsStatus(reportsStatus);
+        setUsersRealisingReport(usersRealisingReport);
+        setCreateDate(createDate);
+        setUpdateDate(updateDate);
+    }
+
 
     @Override
     public boolean equals(Object o) {
