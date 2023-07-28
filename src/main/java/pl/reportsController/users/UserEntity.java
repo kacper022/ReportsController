@@ -3,7 +3,9 @@ package pl.reportsController.users;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import pl.reportsController.passwords.PasswordHashing;
 import pl.reportsController.reports.ReportEntity;
 

@@ -1,7 +1,9 @@
 package pl.reportsController.users;
 
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.catalina.manager.HTMLManagerServlet;
 import org.springframework.web.bind.annotation.*;
 import pl.reportsController.passwords.PasswordHashing;
 
@@ -27,40 +29,42 @@ public class UserController {
         return userRepository.findById(id).orElseThrow(RuntimeException::new);
     }
 
-    @GetMapping("/login")
-    public String loginUser(HttpServletResponse response, @RequestParam String login, @RequestParam String password) {
-        String hashedPassword = PasswordHashing.HashPassword(password);
+    @PostMapping("/login")
+    public String loginUser(HttpServletResponse response, @RequestBody UserEntity userEntity) {
+        String hashedPassword = userEntity.getPassword();
 
-        if(userRepository.findByLogin(login) == null ){
+        if(userRepository.findByLogin(userEntity.getLogin()) == null ){
             return "Błędny login";
         }
 
-        if(!userRepository.findPasswordByLogin(login).equals(hashedPassword)){
+        if(!userRepository.findPasswordByLogin(userEntity.getLogin()).equals(hashedPassword)){
             return "Błędne hasło";
         }
-        Long userId = userRepository.findIdByUsernameAndPassword(login, hashedPassword);
+        Long userId = userRepository.findIdByUsernameAndPassword(userEntity.getLogin(), hashedPassword);
         Cookie cookie = new Cookie("userId", ""+userId);
+        cookie.setHttpOnly(true);
+
         response.addCookie(cookie);
 
         return "OK";
     }
 
+    @PostMapping("/register")
+    public String registerUser(HttpServletResponse response, @RequestBody UserEntity userEntity ){
 
-    @GetMapping("/register")
-    public String loginUser(HttpServletResponse response, @RequestParam String firstName,
-                             @RequestParam String lastName,
-                          @RequestParam String login, @RequestParam String password, @RequestParam String email ){
-        UserEntity newUser = new UserEntity(firstName, lastName, login, password, email);
-        if(userRepository.checkLoginExists(login) != null){
+        if(userRepository.checkLoginExists(userEntity.getLogin()) != null){
             return "Login jest już zajęty";
         }
 
-        if(userRepository.checkEmailExists(email) != null){
+        if(userRepository.checkEmailExists(userEntity.getEmail()) != null){
             return "Email jest już zajęty";
         }
-        userRepository.save(newUser);
 
-        Cookie cookie = new Cookie("idUser", ""+newUser.getId());
+
+        System.out.println(userEntity.toString());
+        userRepository.save(userEntity);
+
+        Cookie cookie = new Cookie("idUser", ""+userEntity.getId());
         response.addCookie(cookie);
         return "OK";
     }
