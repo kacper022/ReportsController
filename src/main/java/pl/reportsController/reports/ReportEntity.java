@@ -5,10 +5,7 @@ import lombok.*;
 import pl.reportsController.customers.CustomerEntity;
 import pl.reportsController.users.UserEntity;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Table(name = "`report`")
 @Entity
@@ -31,7 +28,7 @@ public class ReportEntity {
     private Date updateDate;
 
     @Column(nullable = true)
-    private String reportPhoto;
+    private byte[] reportPhoto;
 
 
     public ReportEntity(String name, String description, Long clientId, Date createDate, Date updateDate){
@@ -64,6 +61,19 @@ public class ReportEntity {
         setUpdateDate(updateDate);
     }
 
+    public ReportEntity(String name, String description, ReportsStatus reportsStatus){
+        this.name = name;
+        this.description = description;
+        this.reportsStatus = reportsStatus;
+    }
+
+    public ReportEntity(String name, String description, ReportsStatus reportsStatus, byte[] reportPhoto){
+        this.name = name;
+        this.description = description;
+        this.reportsStatus = reportsStatus;
+        this.reportPhoto = reportPhoto;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -83,13 +93,16 @@ public class ReportEntity {
     @Override
     public String toString() {
         return "ReportEntity{" +
-                "ID=" + id +
-                ", createDate='" + createDate + '\'' +
-                ", endDate='" + endDate + '\'' +
-                ", updateDate='" + updateDate + '\'' +
+                "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
+                ", clientId=" + clientId +
                 ", usersRealisingReport=" + usersRealisingReport +
+                ", reportsStatus=" + reportsStatus +
+                ", createDate=" + createDate +
+                ", endDate=" + endDate +
+                ", updateDate=" + updateDate +
+                ", reportPhoto=" + Arrays.toString(reportPhoto) +
                 '}';
     }
 }

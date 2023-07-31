@@ -6,8 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.reportsController.customers.CustomerEntity;
+import pl.reportsController.customers.CustomerRepository;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Table(name = "`address`")
@@ -20,12 +22,15 @@ public class AddressEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     private String city;
     private String zipCode;
     private String street;
     private String streetNumber;
     private String apartmentNumber;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = true)
+    private CustomerEntity customer;
 
     public AddressEntity(String street, String streetNumber){
         this.street = street;

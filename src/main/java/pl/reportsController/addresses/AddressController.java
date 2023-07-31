@@ -1,10 +1,12 @@
 package pl.reportsController.addresses;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.reportsController.reports.ReportRepository;
+import pl.reportsController.users.UserEntity;
 
 @RestController
 @RequestMapping("/addresses")
@@ -23,30 +25,27 @@ public class AddressController {
         return addressRepository.findAll();
     }
 
-    @GetMapping("/{id}")
-    public AddressEntity getAddressById(@PathVariable Long id){
-        return addressRepository.findById(id).orElseThrow(RuntimeException::new);
+    @GetMapping("/getAddress")
+    public AddressEntity getAddressById(@RequestBody AddressEntity addressEntity){
+        System.out.println(addressEntity.toString());
+        return addressRepository.findById(addressEntity.getId()).orElseThrow(RuntimeException::new);
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<String> addAddress(
-            @RequestParam("street") String street,
-            @RequestParam("streetNumber") String streetNumber,
-            @RequestParam("apartmentNumber") String apartmentNumber,
-            @RequestParam("city") String city,
-            @RequestParam("zipCode") String zipCode)
+    @PostMapping("/addAddressToDatabase")
+    public ResponseEntity<String> addAddress(HttpServletResponse response, @RequestBody AddressEntity addressEntity)
     {
-        AddressEntity addressEntity = new AddressEntity(street, streetNumber, apartmentNumber, city, zipCode);
+        AddressEntity newAddressEntity = new AddressEntity(addressEntity.getStreet(), addressEntity.getStreetNumber(), addressEntity.getApartmentNumber(),
+                                                           addressEntity.getCity(), addressEntity.getZipCode());
         addressRepository.save(addressEntity);
         return new ResponseEntity<>("Address added to database", HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete={id}")
-    public void deleteAddressById(@PathVariable Long id){
-        if(!addressRepository.existsById(id)){
+    @DeleteMapping("/delete")
+    public void deleteAddressById(HttpServletResponse response, @RequestBody AddressEntity addressEntity){
+        if(!addressRepository.existsById(addressEntity.getId())){
             throw new RuntimeException();
         } else {
-            addressRepository.deleteById(id);
+            addressRepository.deleteById(addressEntity.getId());
         }
     }
 

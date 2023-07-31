@@ -36,13 +36,13 @@ public class CustomerController {
     public ResponseEntity<String> addCustomer(
             @RequestParam("firstName") String firstName,
             @RequestParam("lastName") String lastName,
-            @RequestParam("address") String idAddressEntity
+            @RequestParam("address") Long idUser
     ){
-        CustomerEntity customerEntity = new CustomerEntity(firstName, lastName, Long.parseLong(idAddressEntity));
+        CustomerEntity customerEntity = new CustomerEntity(firstName, lastName, idUser);
         return new ResponseEntity<>("Customer added to database", HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete={id}")
+    @DeleteMapping("/remove/")
     public void deleteCustomerById(@PathVariable long id){
         if(!customerRepository.existsById(id)){
             throw new RuntimeException();

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.reportsController.addresses.AddressEntity;
+import pl.reportsController.customers.CustomerEntity;
 import pl.reportsController.passwords.PasswordHashing;
 import pl.reportsController.reports.ReportEntity;
 
@@ -23,8 +25,6 @@ public class UserEntity {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
-    private String firstName="";
-    private String lastName="";
     private String password="";
 
     private String login="";
@@ -34,82 +34,14 @@ public class UserEntity {
     UserRole userRole;
     private int isUserActive;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public UserRole getUserRole() {
-        return userRole;
-    }
-
-    public void setUserRole(UserRole userRole) {
-        this.userRole = userRole;
-    }
-
-    public Set<ReportEntity> getReportEntities() {
-        return reportEntities;
-    }
-
-    public void setReportEntities(Set<ReportEntity> reportEntities) {
-        this.reportEntities = reportEntities;
-    }
-
-    public String getPassword() {
-        return password;
-    }
+    private Long customer_id;
 
     public void setPassword(String password) {
         this.password = PasswordHashing.HashPassword(password);
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public int getIsUserActive() {
-        return isUserActive;
-    }
-
-    public void setIsUserActive(int isUserActive) {
-        this.isUserActive = isUserActive;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public UserEntity(String firstName, String lastName, String login, String password, String email, UserRole userRole,
+    public UserEntity(String login, String password, String email, UserRole userRole,
                       int isUserActiv){
-        this.firstName = firstName;
-        this.lastName = lastName;
         this.login = login;
         this.password = password;
         this.email = email;
@@ -117,12 +49,7 @@ public class UserEntity {
         this.isUserActive = isUserActiv;
     }
 
-    /*
-
-     */
-    public UserEntity(String firstName, String lastName, String login, String password, String email){
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public UserEntity(String login, String password, String email){
         this.login = login;
         this.password = password;
         this.email = email;

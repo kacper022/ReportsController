@@ -38,13 +38,12 @@ public class BootstrapData implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         List<UserEntity> users = new ArrayList();
-
         //Creating test users
-        val kacper = new UserEntity("Kacper", "Kuczminski", "admin", PasswordHashing.HashPassword("admin"), "kcpr543" +
+        val kacper = new UserEntity("admin", PasswordHashing.HashPassword("admin"), "kcpr543" +
                 "@gmail.com", UserRole.ADMINISTRATOR,
                                     1);
         users.add(kacper);
-        val user = new UserEntity("User", "Userowski", "user", PasswordHashing.HashPassword("user"), "user@user" +
+        val user = new UserEntity("user", PasswordHashing.HashPassword("user"), "user@user" +
                 ".pl", UserRole.CUSTOMER, 1);
         users.add(user);
         userRepository.saveAll(users);
@@ -63,6 +62,7 @@ public class BootstrapData implements CommandLineRunner {
         val janusz = new CustomerEntity();
         janusz.setFirstName("Janusz");
         janusz.setLastName("Nowak");
+        customerRepository.save(janusz);
 
         val usterka = new ReportEntity("Nazwa usterki", "Opis usterki", ReportsStatus.NEW, user.getId(), kacper.getId(),
                                            new Date(), new Date());

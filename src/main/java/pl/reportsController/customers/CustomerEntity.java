@@ -23,21 +23,18 @@ public class CustomerEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private String firstName="";
+    private String lastName="";
+    private Long id_user = 0L;
 
-    private String firstName;
-    private String lastName;
-    private Long id_user;
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    private List<AddressEntity> addresses;
 
 
-    public CustomerEntity(String firstName, String lastName, Long id_user) {
-        setFirstName(firstName);
-        setLastName(lastName);
-        setId_user(id_user);
-    }
-
-    public CustomerEntity(String firstName, String lastName, long idAddressEntity) {
-        AddressRepository addressRepository = null;
-        String city = addressRepository.findById(idAddressEntity).toString();
+    public CustomerEntity(String firstName, String lastName, long idUser) {
+       this.firstName = firstName;
+       this.lastName = lastName;
+       this.id_user=idUser;
     }
 
     @Override

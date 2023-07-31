@@ -34,13 +34,16 @@ public class UserController {
         String hashedPassword = userEntity.getPassword();
 
         if(userRepository.findByLogin(userEntity.getLogin()) == null ){
+            System.out.println("Error login (wrong username): "+userEntity.getLogin());
             return "Błędny login";
         }
 
         if(!userRepository.findPasswordByLogin(userEntity.getLogin()).equals(hashedPassword)){
+            System.out.println("Error login (wrong password): "+userEntity.getPassword());
             return "Błędne hasło";
         }
         Long userId = userRepository.findIdByUsernameAndPassword(userEntity.getLogin(), hashedPassword);
+        System.out.println(userEntity.getLogin() + " has been logged in to service!");
         Cookie cookie = new Cookie("userId", ""+userId);
         cookie.setHttpOnly(true);
 
@@ -50,21 +53,21 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String registerUser(HttpServletResponse response, @RequestBody UserEntity userEntity ){
+    public String registerUser(HttpServletResponse response, @RequestBody UserEntity ue ){
 
-        if(userRepository.checkLoginExists(userEntity.getLogin()) != null){
+        UserEntity user = new UserEntity(ue.getLogin(), ue.getPassword(), ue.getEmail());
+
+        if(userRepository.checkLoginExists(ue.getLogin()) != null){
             return "Login jest już zajęty";
         }
 
-        if(userRepository.checkEmailExists(userEntity.getEmail()) != null){
+        if(userRepository.checkEmailExists(ue.getEmail()) != null){
             return "Email jest już zajęty";
         }
 
+         userRepository.save(ue);
 
-        System.out.println(userEntity.toString());
-        userRepository.save(userEntity);
-
-        Cookie cookie = new Cookie("idUser", ""+userEntity.getId());
+        Cookie cookie = new Cookie("idUser", ""+ue.getId());
         response.addCookie(cookie);
         return "OK";
     }
