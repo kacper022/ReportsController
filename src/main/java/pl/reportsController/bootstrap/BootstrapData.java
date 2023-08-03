@@ -55,7 +55,7 @@ public class BootstrapData implements CommandLineRunner {
         val ulica1 = new AddressEntity("Czekoladowa", "22", "", "Warszawa", "00-002");
         val ulica2 = new AddressEntity("Zielona", "2", "10", "Zielona Góra", "66-002");
         val ulica3 = new AddressEntity("Cerwona", "1", "1", "Toruń", " 87-100");
-        listaAdresow.addAll(List.of(new AddressEntity[]{ulica, ulica1,ulica2,ulica3}));
+        listaAdresow.addAll(List.of(new AddressEntity[]{ulica, ulica1, ulica2, ulica3}));
         addressRepository.saveAll(listaAdresow);
 
         //Creating simple customer
@@ -65,7 +65,7 @@ public class BootstrapData implements CommandLineRunner {
         customerRepository.save(janusz);
 
         val usterka = new ReportEntity("Nazwa usterki", "Opis usterki", ReportsStatus.NEW, user.getId(), kacper.getId(),
-                                           new Date(), new Date());
+                                       new Date(), new Date());
         reportRepository.save(usterka);
 
         System.out.println("\n\n==========================================");

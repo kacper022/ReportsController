@@ -1,11 +1,12 @@
 package pl.reportsController.reports;
 
 import jakarta.persistence.*;
-import lombok.*;
-import pl.reportsController.customers.CustomerEntity;
-import pl.reportsController.users.UserEntity;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Objects;
 
 @Table(name = "`report`")
 @Entity
@@ -31,15 +32,15 @@ public class ReportEntity {
     private byte[] reportPhoto;
 
 
-    public ReportEntity(String name, String description, Long clientId, Date createDate, Date updateDate){
+    public ReportEntity(String name, String description, Long clientId, Date createDate, Date updateDate) {
         this.name = name;
         this.description = description;
         this.clientId = clientId;
         this.createDate = createDate;
         this.updateDate = updateDate;
     }
-    public ReportEntity(String name, String description, Long clientId, Long usersRealisingReport, Date createDate,
-                        Date updateDate){
+
+    public ReportEntity(String name, String description, Long clientId, Long usersRealisingReport, Date createDate, Date updateDate) {
         this.name = name;
         this.description = description;
         this.clientId = clientId;
@@ -48,10 +49,8 @@ public class ReportEntity {
         this.updateDate = updateDate;
     }
 
-    public ReportEntity(String name, String description, ReportsStatus reportsStatus, Long clientId,
-                        Long usersRealisingReport,
-                        Date createDate,
-                        Date updateDate){
+    public ReportEntity(String name, String description, ReportsStatus reportsStatus, Long clientId, Long usersRealisingReport,
+                        Date createDate, Date updateDate) {
         setName(name);
         setDescription(description);
         setClientId(clientId);
@@ -61,13 +60,13 @@ public class ReportEntity {
         setUpdateDate(updateDate);
     }
 
-    public ReportEntity(String name, String description, ReportsStatus reportsStatus){
+    public ReportEntity(String name, String description, ReportsStatus reportsStatus) {
         this.name = name;
         this.description = description;
         this.reportsStatus = reportsStatus;
     }
 
-    public ReportEntity(String name, String description, ReportsStatus reportsStatus, byte[] reportPhoto){
+    public ReportEntity(String name, String description, ReportsStatus reportsStatus, byte[] reportPhoto) {
         this.name = name;
         this.description = description;
         this.reportsStatus = reportsStatus;
@@ -77,8 +76,12 @@ public class ReportEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ReportEntity reportEntity = (ReportEntity) o;
 
@@ -92,17 +95,7 @@ public class ReportEntity {
 
     @Override
     public String toString() {
-        return "ReportEntity{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", clientId=" + clientId +
-                ", usersRealisingReport=" + usersRealisingReport +
-                ", reportsStatus=" + reportsStatus +
-                ", createDate=" + createDate +
-                ", endDate=" + endDate +
-                ", updateDate=" + updateDate +
-                ", reportPhoto=" + Arrays.toString(reportPhoto) +
-                '}';
+        return "ReportEntity{" + "id=" + id + ", name='" + name + '\'' + ", description='" + description + '\'' + ", clientId=" + clientId + ", usersRealisingReport=" + usersRealisingReport + ", reportsStatus=" + reportsStatus + ", createDate=" + createDate + ", endDate=" + endDate + ", updateDate=" + updateDate + ", reportPhoto=" + Arrays.toString(
+                reportPhoto) + '}';
     }
 }
