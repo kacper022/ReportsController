@@ -4,26 +4,26 @@ Aplikacja pozwalająca na obsługę zgłoszeń w sieci telekomunikacyjnej, rejes
 
 ## Użyte technologie 
 
-**Frontend:** JavaScript, React
+**Frontend:** TypeScript, React
 
 **Backend:** Java, PostgreSQL, Docker
 
 
 ## Lokalne uruchomienie
 
-Clone the project
+Klonowanie projektu
 
 ```bash
    git clone https://github.com/kacperkuczminski/ReportsController
 ```
 
-Go to the project directory 
+Przejdź do katalogu
 
 ```bash
    cd ReportsController
 ```
 
-Install dependencies and start the frontend
+Zainstaluj zależności oraz uruchom część frontendową
 
 ```bash
    cd ui
@@ -31,13 +31,13 @@ Install dependencies and start the frontend
    npm run start
 ```
 
-Go to database directory and run docker container
+Przejdź do folderu z bazą danych oraz uruchom kontener docker
 ```bash
    cd ..\database\
    docker compose up
 ```
 
-Go to main directory and start backend
+Przejdź do głównego katalogu i uruchom aplikację (backend)
 ```bash
    cd ..
    .\mvnw spring-boot:run 
