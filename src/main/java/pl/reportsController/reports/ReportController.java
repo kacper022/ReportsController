@@ -28,11 +28,8 @@ public class ReportController {
 
     @GetMapping("/getAll")
     public Iterable<ReportEntity> getAllReports() {
-
         Iterable<ReportEntity> allReports = reportRepository.findAll();
-
         return allReports;
-
     }
 
     @GetMapping("/getById")
