@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
@@ -23,7 +26,7 @@ public class ReportEntity {
     private Long clientId;
     private Long usersRealisingReport;
 
-    private ReportsStatus reportsStatus;
+    private ReportStatus reportStatus;
     private Date createDate;
     private Date endDate;
     private Date updateDate;
@@ -49,27 +52,27 @@ public class ReportEntity {
         this.updateDate = updateDate;
     }
 
-    public ReportEntity(String name, String description, ReportsStatus reportsStatus, Long clientId, Long usersRealisingReport,
+    public ReportEntity(String name, String description, ReportStatus reportStatus, Long clientId, Long usersRealisingReport,
                         Date createDate, Date updateDate) {
         setName(name);
         setDescription(description);
         setClientId(clientId);
-        setReportsStatus(reportsStatus);
+        setReportStatus(reportStatus);
         setUsersRealisingReport(usersRealisingReport);
         setCreateDate(createDate);
         setUpdateDate(updateDate);
     }
 
-    public ReportEntity(String name, String description, ReportsStatus reportsStatus) {
+    public ReportEntity(String name, String description, ReportStatus reportStatus) {
         this.name = name;
         this.description = description;
-        this.reportsStatus = reportsStatus;
+        this.reportStatus = reportStatus;
     }
 
-    public ReportEntity(String name, String description, ReportsStatus reportsStatus, byte[] reportPhoto) {
+    public ReportEntity(String name, String description, ReportStatus reportStatus, byte[] reportPhoto) {
         this.name = name;
         this.description = description;
-        this.reportsStatus = reportsStatus;
+        this.reportStatus = reportStatus;
         this.reportPhoto = reportPhoto;
     }
 
@@ -95,7 +98,7 @@ public class ReportEntity {
 
     @Override
     public String toString() {
-        return "ReportEntity{" + "id=" + id + ", name='" + name + '\'' + ", description='" + description + '\'' + ", clientId=" + clientId + ", usersRealisingReport=" + usersRealisingReport + ", reportsStatus=" + reportsStatus + ", createDate=" + createDate + ", endDate=" + endDate + ", updateDate=" + updateDate + ", reportPhoto=" + Arrays.toString(
+        return "ReportEntity{" + "id=" + id + ", name='" + name + '\'' + ", description='" + description + '\'' + ", clientId=" + clientId + ", usersRealisingReport=" + usersRealisingReport + ", reportStatus=" + reportStatus + ", createDate=" + createDate + ", endDate=" + endDate + ", updateDate=" + updateDate + ", reportPhoto=" + Arrays.toString(
                 reportPhoto) + '}';
     }
 }

@@ -28,7 +28,11 @@ public class ReportController {
 
     @GetMapping("/getAll")
     public Iterable<ReportEntity> getAllReports() {
-        return reportRepository.findAll();
+
+        Iterable<ReportEntity> allReports = reportRepository.findAll();
+
+        return allReports;
+
     }
 
     @GetMapping("/getById")
@@ -49,6 +53,8 @@ public class ReportController {
     @PostMapping("/createNewReport")
     public void createNewReport(HttpServletResponse response,
                                 @RequestBody ReportEntity re) throws URISyntaxException {
+
+        ReportEntity asd = new ReportEntity();
         ReportEntity savedReportEntity = reportRepository.save(re);
         System.out.println("Created new report");
     }

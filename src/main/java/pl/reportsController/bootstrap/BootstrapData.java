@@ -10,7 +10,7 @@ import pl.reportsController.customers.CustomerRepository;
 import pl.reportsController.passwords.PasswordHashing;
 import pl.reportsController.reports.ReportEntity;
 import pl.reportsController.reports.ReportRepository;
-import pl.reportsController.reports.ReportsStatus;
+import pl.reportsController.reports.ReportStatus;
 import pl.reportsController.users.UserEntity;
 import pl.reportsController.users.UserRepository;
 import pl.reportsController.users.UserRole;
@@ -64,7 +64,7 @@ public class BootstrapData implements CommandLineRunner {
         janusz.setLastName("Nowak");
         customerRepository.save(janusz);
 
-        val usterka = new ReportEntity("Nazwa usterki", "Opis usterki", ReportsStatus.NEW, user.getId(), kacper.getId(),
+        val usterka = new ReportEntity("Nazwa usterki", "Opis usterki", ReportStatus.NEW, user.getId(), kacper.getId(),
                                        new Date(), new Date());
         reportRepository.save(usterka);
 
