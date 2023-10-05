@@ -3,6 +3,8 @@ package pl.reportsController.users;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
+import pl.reportsController.emailer.EmailService;
+import pl.reportsController.passwords.PasswordHashing;
 
 import java.util.HashMap;
 
@@ -13,9 +15,11 @@ import java.util.HashMap;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, EmailService emailService) {
         this.userRepository = userRepository;
+        this.emailService = emailService;
     }
 
     @GetMapping
@@ -94,6 +98,31 @@ public class UserController {
             throw new RuntimeException();
         } else {
             userRepository.deleteById(id);
+        }
+    }
+
+    @PostMapping("/recoveryPassword")
+    public void passwordRecovery(HttpServletResponse response, @RequestBody UserEntity ue){
+        UserEntity user = new UserEntity();
+        user.setEmail(ue.getEmail());
+        Long idUser = userRepository.findIdByEmail(user.getEmail());
+
+        System.out.println(user.toString());
+        if(idUser != null && idUser > -1){
+            String randomPassword = PasswordHashing.generateRandomPasswordForUser();
+            user.setPassword(randomPassword);
+
+            userRepository.updateUserPassword(idUser, user.getEmail(), user.getPassword());
+            StringBuilder sb = new StringBuilder();
+            String to = ue.getEmail(); // Adres e-mail na serwerze Mailhog lub innym lokalnym serwerze pocztowym
+            String subject = "Przypomnienie hasła";
+
+            sb.append("Twoje tymczasowe hasło to: \n");
+            sb.append(randomPassword);
+            sb.append("\nPolecamy jak najszybszą zmianę");
+            if(emailService.sendEmail(to,subject,sb.toString())){
+                response.setStatus(200);
+            }
         }
     }
 }
