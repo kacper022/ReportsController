@@ -8,6 +8,10 @@ spring:
       ddl-auto: create-drop
     properties:
       dialect: org.hibernate.dialect.PostgreSQLDialect
+    types:
+      print:
+        banner: false
+      type_contributors: com.vladmihalcea.hibernate.type.joda.JodaTimeTypeContributor
   servlet:
     multipart:
       enabled: true

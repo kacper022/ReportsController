@@ -2,8 +2,11 @@ package pl.reportsController.users;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import pl.reportsController.passwords.PasswordHashing;
 import pl.reportsController.reports.ReportEntity;
 
@@ -16,6 +19,7 @@ import java.util.Set;
 @Data
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserEntity {
 
     UserRole userRole;
@@ -26,10 +30,10 @@ public class UserEntity {
     private String login = "";
     private String email = "";
     private int isUserActive = 0;
-
     private Long customer_id = 0L;
-
     private Date createDate = null;
+    private LocalDateTime lastPasswordReset = null;
+
     @JsonIgnore
     @ManyToMany(mappedBy = "usersRealisingReport", fetch = FetchType.LAZY)
     private Set<ReportEntity> reportEntities = new HashSet<>();

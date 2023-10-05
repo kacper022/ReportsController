@@ -2,13 +2,15 @@ package pl.reportsController.users;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.reportsController.emailer.EmailService;
 import pl.reportsController.passwords.PasswordHashing;
 
+import java.io.IOException;
 import java.util.HashMap;
-
-
 
 @RestController
 @RequestMapping("/users")
@@ -84,6 +86,7 @@ public class UserController {
         for (String name : cookies.keySet()) {
             response.addCookie(new Cookie(name, cookies.get(name)));
         }
+        response.setStatus(200);
         return "OK";
     }
 
@@ -102,27 +105,43 @@ public class UserController {
     }
 
     @PostMapping("/recoveryPassword")
-    public void passwordRecovery(HttpServletResponse response, @RequestBody UserEntity ue){
+    public ResponseEntity<String> passwordRecovery(HttpServletResponse response,
+                                                   @RequestBody UserEntity ue) throws IOException {
         UserEntity user = new UserEntity();
         user.setEmail(ue.getEmail());
         Long idUser = userRepository.findIdByEmail(user.getEmail());
 
         System.out.println(user.toString());
-        if(idUser != null && idUser > -1){
-            String randomPassword = PasswordHashing.generateRandomPasswordForUser();
-            user.setPassword(randomPassword);
+        if (idUser != null && idUser > -1) {
 
-            userRepository.updateUserPassword(idUser, user.getEmail(), user.getPassword());
-            StringBuilder sb = new StringBuilder();
-            String to = ue.getEmail(); // Adres e-mail na serwerze Mailhog lub innym lokalnym serwerze pocztowym
-            String subject = "Przypomnienie hasła";
+            LocalDateTime lastResetDate = userRepository.getUserLastResetPasswordDate(idUser);
+            DateTime currentTime = new DateTime();
+            LocalDateTime currentLocalTime = currentTime.toLocalDateTime();
+            boolean canUserResetPassword = true;
+            if (lastResetDate != null) {
+                canUserResetPassword = lastResetDate.plusMinutes(2).isBefore(currentLocalTime);
+            }
 
-            sb.append("Twoje tymczasowe hasło to: \n");
-            sb.append(randomPassword);
-            sb.append("\nPolecamy jak najszybszą zmianę");
-            if(emailService.sendEmail(to,subject,sb.toString())){
-                response.setStatus(200);
+            if (canUserResetPassword) {
+                String randomPassword = PasswordHashing.generateRandomPasswordForUser();
+                user.setPassword(randomPassword);
+
+                userRepository.updateUserPassword(idUser, user.getEmail(), user.getPassword(), currentLocalTime);
+
+                StringBuilder sb = new StringBuilder();
+                String to = ue.getEmail();
+                String subject = "Przypomnienie hasła";
+
+                sb.append("Twoje tymczasowe hasło to: \n");
+                sb.append(randomPassword);
+                sb.append("\nPolecamy jak najszybszą zmianę");
+                if (emailService.sendEmail(to, subject, sb.toString())) {
+                    return ResponseEntity.ok("OK");
+                }
+            } else {
+                return ResponseEntity.ok("Zmiana hasła zablokowana");
             }
         }
+        return ResponseEntity.ok("Nie ma takiego uzytkownika");
     }
 }
