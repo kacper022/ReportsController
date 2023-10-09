@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.reportsController.emailer.EmailService;
 import pl.reportsController.passwords.PasswordHashing;
+import pl.reportsController.roles.ERole;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -67,7 +68,10 @@ public class UserController {
     public String registerUser(HttpServletResponse response,
                                @RequestBody UserEntity ue) {
 
-        UserEntity user = new UserEntity(ue.getLogin(), ue.getPassword(), ue.getEmail());
+        UserEntity user = new UserEntity();
+        user.setLogin(ue.getLogin());
+        user.setPassword(ue.getPassword());
+        user.setEmail(ue.getEmail());
 
         System.out.println(user.toString());
         if (userRepository.checkLoginExists(ue.getLogin()) != null) {
@@ -82,7 +86,7 @@ public class UserController {
 
         HashMap<String, String> cookies = new HashMap<>();
         cookies.put("isLogged", "true");
-        cookies.put("userId", user.getId().toString());
+        cookies.put("userId", user.getIdUser().toString());
         for (String name : cookies.keySet()) {
             response.addCookie(new Cookie(name, cookies.get(name)));
         }
@@ -94,7 +98,7 @@ public class UserController {
     public void deleteUserById(
             @RequestBody UserEntity ue,
             @PathVariable Long id) {
-        if (ue.getUserRole() != UserRole.ADMINISTRATOR) {
+        if (ue.getRoles().equals(ERole.ADMINISTRATOR)) {
             return;
         }
         if (userRepository.existsById(id)) {

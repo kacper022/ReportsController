@@ -5,56 +5,57 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import pl.reportsController.passwords.PasswordHashing;
 import pl.reportsController.reports.ReportEntity;
+import pl.reportsController.roles.RoleEntity;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Table(name = "`user`")
-@Data
 @Entity
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "`user`")
 public class UserEntity {
 
-    UserRole userRole;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String password = "";
-    private String login = "";
-    private String email = "";
-    private int isUserActive = 0;
-    private Long customer_id = 0L;
-    private Date createDate = null;
-    private LocalDateTime lastPasswordReset = null;
+    private Long idUser;
+
+    private String password;
+    private String login;
+    private String email;
+    private boolean isUserActive;
+    private Long customer_id;
+    private LocalDateTime createDate;
+    private LocalDateTime lastPasswordReset;
+
+    @Lob
+    @Column(name = "userAvatar", length = 1000)
+    private byte[] userAvatar;
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<RoleEntity> roles = new HashSet<>();
 
     @JsonIgnore
     @ManyToMany(mappedBy = "usersRealisingReport", fetch = FetchType.LAZY)
     private Set<ReportEntity> reportEntities = new HashSet<>();
 
-    public UserEntity(String login, String password, String email, UserRole userRole,
-                      int isUserActive) {
-        setLogin(login);
-        this.password = password;
-        setEmail(email);
-        setUserRole(userRole);
-        setIsUserActive(isUserActive);
-        setCreateDate(new Date());
+    public void addRole(RoleEntity role) {
+        this.roles.add(role);
     }
 
-    public UserEntity(String login, String password, String email) {
-        setLogin(login);
-        this.password = password;
-        setEmail(email);
-        setUserRole(UserRole.CUSTOMER);
-        setIsUserActive(1);
-        setCreateDate(new Date());
+    public void removeRole(RoleEntity role) {
+        this.roles.remove(role);
     }
 
     public void setPassword(String password) {
@@ -67,20 +68,14 @@ public class UserEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        UserEntity userEntity = (UserEntity) o;
-
-        return Objects.equals(id, userEntity.id);
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserEntity that = (UserEntity) o;
+        return Objects.equals(idUser, that.idUser);
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return Objects.hash(idUser);
     }
 }
