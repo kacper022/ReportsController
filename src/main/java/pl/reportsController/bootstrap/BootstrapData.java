@@ -41,9 +41,6 @@ public class BootstrapData implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        RoleEntity adminRole = new RoleEntity();
-        adminRole.setRoleName(ERole.ADMINISTRATOR);
-        roleRepository.save(adminRole);
 
         LocalDateTime ldt = new LocalDateTime();
 
@@ -55,18 +52,19 @@ public class BootstrapData implements CommandLineRunner {
         kacper.setUserActive(true);
         kacper.setCreateDate(ldt);
         kacper.setEmail("kacper.kuczminski@email.pl");
+        RoleEntity adminRole = new RoleEntity();
+        adminRole.setRoleName(ERole.ADMINISTRATOR);
         kacper.addRole(adminRole);
         users.add(kacper);
 
         val user = new UserEntity();
-        RoleEntity customerRole = new RoleEntity();
-        customerRole.setRoleName(ERole.CUSTOMER);
-        roleRepository.save(customerRole);
         user.setLogin("user");
         user.setPassword("user");
         user.setEmail("user@user.pl");
         user.setUserActive(true);
         user.setCreateDate(ldt);
+        RoleEntity customerRole = new RoleEntity();
+        customerRole.setRoleName(ERole.CUSTOMER);
         user.addRole(customerRole);
         users.add(user);
         userRepository.saveAll(users);

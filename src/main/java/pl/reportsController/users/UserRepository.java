@@ -1,13 +1,16 @@
 package pl.reportsController.users;
 
-import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+import pl.reportsController.roles.RoleEntity;
 
-import java.util.Date;
+import java.util.Optional;
+import java.util.Set;
+
 
 public interface UserRepository extends CrudRepository<UserEntity, Long> {
     @Query("SELECT u.id FROM UserEntity u WHERE u.login = ?1 AND u.password = ?2")
@@ -34,4 +37,10 @@ public interface UserRepository extends CrudRepository<UserEntity, Long> {
 
     @Query("SELECT u.lastPasswordReset FROM UserEntity u where u.id = ?1")
     LocalDateTime getUserLastResetPasswordDate(Long idUser);
+
+    @Query("SELECT r FROM UserEntity u JOIN u.roles r WHERE u.idUser = :userId")
+    Set<RoleEntity> findRolesByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT u FROM UserEntity u WHERE u.idUser = :userId")
+    Optional<UserEntity> findUserById(@Param("userId") Long userId);
 }

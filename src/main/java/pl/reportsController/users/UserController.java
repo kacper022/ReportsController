@@ -53,14 +53,19 @@ public class UserController {
         Long userId = userRepository.findIdByUsernameAndPassword(userEntity.getLogin(), hashedPassword);
         System.out.println(userEntity.getLogin() + " has been logged in to service!");
 
-        HashMap<String, String> cookies = new HashMap<>();
-        cookies.put("isLogged", "true");
-        cookies.put("userId", userId.toString());
-        Cookie cookie = null;
-        for (String name : cookies.keySet()) {
-            cookie = new Cookie(name, cookies.get(name));
-            response.addCookie(cookie);
-        }
+        final int cookieLifetime =7 * 24 * 60 * 60;
+        Cookie isLoggedCookie = new Cookie("isLogged", "true");
+        isLoggedCookie.setMaxAge(cookieLifetime);
+        isLoggedCookie.setDomain("localhost");
+        isLoggedCookie.setPath("/");
+        response.addCookie(isLoggedCookie);
+
+        Cookie userIdCookie = new Cookie("userId", userId.toString());
+        userIdCookie.setMaxAge(cookieLifetime);
+        userIdCookie.setDomain("localhost");
+        userIdCookie.setPath("/");
+        response.addCookie(userIdCookie);
+
         return "OK";
     }
 
@@ -86,9 +91,9 @@ public class UserController {
 
         HashMap<String, String> cookies = new HashMap<>();
         cookies.put("isLogged", "true");
-        cookies.put("userId", user.getIdUser().toString());
         for (String name : cookies.keySet()) {
-            response.addCookie(new Cookie(name, cookies.get(name)));
+            Cookie cookie = new Cookie(name, cookies.get(name));
+            response.addCookie(cookie);
         }
         response.setStatus(200);
         return "OK";

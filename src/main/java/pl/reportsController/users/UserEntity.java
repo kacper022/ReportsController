@@ -32,19 +32,18 @@ public class UserEntity {
     private Long customer_id;
     private LocalDateTime createDate;
     private LocalDateTime lastPasswordReset;
+    private String loginToken;
 
     @Lob
     @Column(name = "userAvatar", length = 1000)
     private byte[] userAvatar;
 
-    @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "user_role",
+               joinColumns = @JoinColumn(name = "user_id"),
+               inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<RoleEntity> roles = new HashSet<>();
+
 
     @JsonIgnore
     @ManyToMany(mappedBy = "usersRealisingReport", fetch = FetchType.LAZY)
