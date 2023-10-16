@@ -1,15 +1,19 @@
 package pl.reportsController.customers;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import jakarta.servlet.http.HttpServletResponse;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.reportsController.reports.ReportEntity;
 import pl.reportsController.reports.ReportRepository;
 import pl.reportsController.roles.ERole;
 import pl.reportsController.roles.RoleEntity;
 import pl.reportsController.users.UserEntity;
 import pl.reportsController.users.UserRepository;
 
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -44,7 +48,11 @@ public class CustomerController {
             @RequestParam("lastName") String lastName,
             @RequestParam("address") Long idUser
                                              ) {
-        CustomerEntity customerEntity = new CustomerEntity(firstName, lastName, idUser);
+        UserEntity userEntity = null;
+        if(idUser > 0) {
+            userEntity = userRepository.getById(idUser);
+        }
+        CustomerEntity customerEntity = new CustomerEntity(firstName, lastName, userEntity);
         return new ResponseEntity<>("Customer added to database", HttpStatus.OK);
     }
 
@@ -62,12 +70,19 @@ public class CustomerController {
     public ResponseEntity<String> getCustomerInfo(HttpServletResponse response,
                                                   @RequestBody UserEntity userEntity) {
         Set<RoleEntity> userRoles = userRepository.findRolesByUserId(userEntity.getIdUser());
-
+        JSONObject dataToReturn = new JSONObject();
         if (userEntity.getIdUser() != null && userRoles != null) {
             for(RoleEntity role : userRoles){
-                //TODO: tu dorobić sprawdzanie jaką role ma użytkownik w celu prawidłowego wyświetlania strony graficznej
+                switch(role.getRoleName()){
+                    case ADMINISTRATOR -> {
+                        return new ResponseEntity<>(dataToReturn.put("role", ERole.ADMINISTRATOR).toString(), HttpStatus.OK);
+                    }
+                    case CUSTOMER -> {
+                        return new ResponseEntity<>(dataToReturn.put("role", ERole.CUSTOMER).toString(), HttpStatus.OK);
+                    }
+                }
             }
         }
-        return null;
+        return new ResponseEntity<>(dataToReturn.put("role", ERole.ADMINISTRATOR).toString(), HttpStatus.OK);
     }
 }

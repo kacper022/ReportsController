@@ -11,12 +11,16 @@ import pl.reportsController.passwords.PasswordHashing;
 import pl.reportsController.roles.ERole;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
+    private final String DOMAIN = "localhost";
+    private final String PATH = "/";
+    private final int COOKIE_LIFE_TIME =7 * 24 * 60 * 60;
     private final UserRepository userRepository;
     private final EmailService emailService;
 
@@ -51,20 +55,32 @@ public class UserController {
             return "Błędne hasło";
         }
         Long userId = userRepository.findIdByUsernameAndPassword(userEntity.getLogin(), hashedPassword);
+        UserEntity user = userRepository.getById(userId);
         System.out.println(userEntity.getLogin() + " has been logged in to service!");
 
-        final int cookieLifetime =7 * 24 * 60 * 60;
         Cookie isLoggedCookie = new Cookie("isLogged", "true");
-        isLoggedCookie.setMaxAge(cookieLifetime);
-        isLoggedCookie.setDomain("localhost");
-        isLoggedCookie.setPath("/");
+        isLoggedCookie.setMaxAge(COOKIE_LIFE_TIME);
+        isLoggedCookie.setDomain(DOMAIN);
+        isLoggedCookie.setPath(PATH);
         response.addCookie(isLoggedCookie);
 
         Cookie userIdCookie = new Cookie("userId", userId.toString());
-        userIdCookie.setMaxAge(cookieLifetime);
-        userIdCookie.setDomain("localhost");
-        userIdCookie.setPath("/");
+        userIdCookie.setMaxAge(COOKIE_LIFE_TIME);
+        userIdCookie.setDomain(DOMAIN);
+        userIdCookie.setPath(PATH);
         response.addCookie(userIdCookie);
+
+        Cookie oldUserRoleCookie = new Cookie("userRole", "");
+        oldUserRoleCookie.setMaxAge(0);
+        oldUserRoleCookie.setPath("/");
+        response.addCookie(oldUserRoleCookie);
+
+        Cookie userRoleCookie = new Cookie("userRole",
+                                           user.getRoles().stream().max(Comparator.comparing(String::valueOf)).get().getRoleName().toString());
+        userRoleCookie.setMaxAge(COOKIE_LIFE_TIME);
+        userRoleCookie.setDomain(DOMAIN);
+        userRoleCookie.setPath(PATH);
+        response.addCookie(userRoleCookie);
 
         return "OK";
     }

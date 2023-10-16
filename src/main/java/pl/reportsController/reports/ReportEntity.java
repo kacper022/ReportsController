@@ -3,10 +3,8 @@ package pl.reportsController.reports;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.reportsController.customers.CustomerEntity;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
@@ -75,7 +73,6 @@ public class ReportEntity {
         this.reportStatus = reportStatus;
         this.reportPhoto = reportPhoto;
     }
-
 
     @Override
     public boolean equals(Object o) {

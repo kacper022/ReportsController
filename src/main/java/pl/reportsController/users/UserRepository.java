@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+import pl.reportsController.roles.ERole;
 import pl.reportsController.roles.RoleEntity;
 
 import java.util.Optional;
@@ -41,6 +42,5 @@ public interface UserRepository extends CrudRepository<UserEntity, Long> {
     @Query("SELECT r FROM UserEntity u JOIN u.roles r WHERE u.idUser = :userId")
     Set<RoleEntity> findRolesByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT u FROM UserEntity u WHERE u.idUser = :userId")
-    Optional<UserEntity> findUserById(@Param("userId") Long userId);
+    UserEntity getById(Long idUser);
 }

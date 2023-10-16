@@ -11,4 +11,7 @@ public interface ReportRepository extends CrudRepository<ReportEntity, Long> {
     @Modifying
     @Query("UPDATE ReportEntity SET reportPhoto = :photo WHERE id= :reportId")
     void updateReportPhoto(@Param("photo")byte[] photo, @Param("reportId")Long id);
+
+    @Query("UPDATE ReportEntity re SET re.reportStatus = ?2 WHERE re.id = ?1")
+    void updateReportStatus(Long idReport, ReportStatus status);
 }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import pl.reportsController.addresses.AddressEntity;
 import pl.reportsController.addresses.AddressRepository;
 import pl.reportsController.reports.ReportEntity;
+import pl.reportsController.users.UserEntity;
 
 import java.util.HashSet;
 import java.util.List;
@@ -25,16 +26,19 @@ public class CustomerEntity {
     private Long id;
     private String firstName="";
     private String lastName="";
-    private Long id_user = 0L;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<AddressEntity> addresses;
 
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "idUser")
+    private UserEntity userEntity;
 
-    public CustomerEntity(String firstName, String lastName, long idUser) {
+
+    public CustomerEntity(String firstName, String lastName, UserEntity userEntity) {
        this.firstName = firstName;
        this.lastName = lastName;
-       this.id_user=idUser;
+       this.userEntity=userEntity;
     }
 
     @Override

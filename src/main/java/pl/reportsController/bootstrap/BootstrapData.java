@@ -27,7 +27,6 @@ public class BootstrapData implements CommandLineRunner {
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
     private final AddressRepository addressRepository;
-    private final RoleRepository roleRepository;
 
     public BootstrapData(ReportRepository reportRepository, UserRepository userRepository,
                          CustomerRepository customerRepository, AddressRepository addressRepository, RoleRepository roleRepository) {
@@ -35,7 +34,6 @@ public class BootstrapData implements CommandLineRunner {
         this.userRepository = userRepository;
         this.customerRepository = customerRepository;
         this.addressRepository = addressRepository;
-        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -69,6 +67,15 @@ public class BootstrapData implements CommandLineRunner {
         users.add(user);
         userRepository.saveAll(users);
 
+        //Create customer profile
+        CustomerEntity customerProfileKacper = new CustomerEntity();
+        customerProfileKacper.setLastName("Kuczmin");
+        customerProfileKacper.setFirstName("Kacper");
+
+        CustomerEntity customerProfileUser = new CustomerEntity();
+        customerProfileUser.setFirstName("USER");
+        customerProfileUser.setLastName("USEROWSKI");
+
         //Create address
         List<AddressEntity> listaAdresow = new ArrayList<>();
         val ulica = new AddressEntity("Morelowa", "12", "1", "Warszawa", "00-001");
@@ -84,7 +91,8 @@ public class BootstrapData implements CommandLineRunner {
         janusz.setLastName("Nowak");
         customerRepository.save(janusz);
 
-        val usterka = new ReportEntity("Nazwa usterki", "Opis usterki", ReportStatus.NEW, user.getCustomer_id(), kacper.getCustomer_id(),
+        val usterka = new ReportEntity("Nazwa usterki", "Opis usterki", ReportStatus.NEW, user.getIdUser(),
+                                       kacper.getIdUser(),
                                        new Date(), new Date());
         reportRepository.save(usterka);
 

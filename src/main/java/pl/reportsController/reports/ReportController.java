@@ -75,12 +75,34 @@ public class ReportController {
         Optional<ReportEntity> reportEntityOptional = reportRepository.findById(reportId);
 
         if (!reportEntityOptional.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Zwróć status 404 gdy raport nie istnieje
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             ReportEntity re = reportEntityOptional.get();
             System.out.println(photo.getName() + " " + photo.getContentType());
             reportRepository.updateReportPhoto(photo.getBytes(), re.getId());
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Zwróć status 204 gdy aktualizacja przebiegła pomyślnie
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+    }
+    @PostMapping("/updateStatus")
+    public ResponseEntity<String> updateReportStatus(HttpServletResponse response, @RequestBody ReportEntity report) throws IOException {
+        boolean updateReport = false;
+        if (report.getId() < 0) {
+            response.sendError(406, "Blad podczas zapisu danych");
+            System.out.println("Bledne id zgloszenia");
+        }
+
+        try {
+            ReportStatus.valueOf(String.valueOf(report.getReportStatus()));
+            updateReport = true;
+        } catch (IllegalArgumentException ex) {
+            System.out.println("Nie ma takiego statusu na liscie stanow usterki");
+        }
+
+        if (updateReport){
+            reportRepository.updateReportStatus(report.getId(), report.getReportStatus());
+            response.setStatus(200);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
 }

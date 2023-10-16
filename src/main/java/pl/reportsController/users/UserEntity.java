@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.joda.time.LocalDateTime;
+import pl.reportsController.customers.CustomerEntity;
 import pl.reportsController.passwords.PasswordHashing;
 import pl.reportsController.reports.ReportEntity;
 import pl.reportsController.roles.RoleEntity;
@@ -18,7 +19,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "`user`")
+@Table(name = "`users`")
 public class UserEntity {
 
     @Id
@@ -29,7 +30,6 @@ public class UserEntity {
     private String login;
     private String email;
     private boolean isUserActive;
-    private Long customer_id;
     private LocalDateTime createDate;
     private LocalDateTime lastPasswordReset;
     private String loginToken;
@@ -37,6 +37,9 @@ public class UserEntity {
     @Lob
     @Column(name = "userAvatar", length = 1000)
     private byte[] userAvatar;
+
+    @OneToOne(mappedBy = "userEntity", cascade = CascadeType.ALL)
+    private CustomerEntity customerEntity;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "user_role",
