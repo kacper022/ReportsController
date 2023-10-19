@@ -75,9 +75,11 @@ public class CustomerController {
             for(RoleEntity role : userRoles){
                 switch(role.getRoleName()){
                     case ADMINISTRATOR -> {
+                        System.out.println("ROLA ADMIN");
                         return new ResponseEntity<>(dataToReturn.put("role", ERole.ADMINISTRATOR).toString(), HttpStatus.OK);
                     }
                     case CUSTOMER -> {
+                        System.out.println("ROLA USER");
                         return new ResponseEntity<>(dataToReturn.put("role", ERole.CUSTOMER).toString(), HttpStatus.OK);
                     }
                 }
