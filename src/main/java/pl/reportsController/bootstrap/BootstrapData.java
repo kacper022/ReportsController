@@ -67,14 +67,22 @@ public class BootstrapData implements CommandLineRunner {
         users.add(user);
         userRepository.saveAll(users);
 
+
         //Create customer profile
+        List<CustomerEntity> customers = new ArrayList();
         CustomerEntity customerProfileKacper = new CustomerEntity();
         customerProfileKacper.setLastName("Kuczmin");
         customerProfileKacper.setFirstName("Kacper");
+        customers.add(customerProfileKacper);
+        kacper.setCustomerEntity(customerProfileKacper);
+        customerProfileKacper.setUserEntity(kacper);
 
         CustomerEntity customerProfileUser = new CustomerEntity();
         customerProfileUser.setFirstName("USER");
         customerProfileUser.setLastName("USEROWSKI");
+        customers.add(customerProfileUser);
+        user.setCustomerEntity(customerProfileUser);
+        customerProfileUser.setUserEntity(user);
 
         //Create address
         List<AddressEntity> listaAdresow = new ArrayList<>();
@@ -89,7 +97,13 @@ public class BootstrapData implements CommandLineRunner {
         val janusz = new CustomerEntity();
         janusz.setFirstName("Janusz");
         janusz.setLastName("Nowak");
-        customerRepository.save(janusz);
+        customers.add(janusz);
+
+//        customerProfileUser.setAddresses(listaAdresow);
+
+        customerRepository.saveAll(customers);
+
+
 
         val usterka = new ReportEntity("Nazwa usterki", "Opis usterki", ReportStatus.NEW, user.getIdUser(),
                                        kacper.getIdUser(),

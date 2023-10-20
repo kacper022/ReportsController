@@ -49,7 +49,7 @@ public class UserEntity {
 
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "usersRealisingReport", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "usersRealisingReport", fetch = FetchType.EAGER)
     private Set<ReportEntity> reportEntities = new HashSet<>();
 
     public void addRole(RoleEntity role) {

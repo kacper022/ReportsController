@@ -43,4 +43,9 @@ public interface UserRepository extends CrudRepository<UserEntity, Long> {
     Set<RoleEntity> findRolesByUserId(@Param("userId") Long userId);
 
     UserEntity getById(Long idUser);
+
+    @Query("SELECT u FROM UserEntity u JOIN FETCH u.customerEntity WHERE u.idUser = :id")
+    Optional<UserEntity> findUserWithCustomerById(@Param("id") Long id);
+
+
 }
