@@ -20,6 +20,7 @@ import pl.reportsController.users.UserRepository;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 @Component
 public class BootstrapData implements CommandLineRunner {
@@ -103,12 +104,19 @@ public class BootstrapData implements CommandLineRunner {
 
         customerRepository.saveAll(customers);
 
+        ReportStatus randomStatus = ReportStatus.values()[new Random().nextInt(ReportStatus.values().length)];
+
+        List<ReportEntity> reportEntityList = new ArrayList<ReportEntity>();
+        for (int i = 0; i < 100; i++) {
+            val usterka = new ReportEntity("Nazwa usterki" + i, "Opis usterki" + i, randomStatus, user.getIdUser(),
+                                           kacper.getIdUser(),
+                                           new Date(), new Date());
+            reportEntityList.add(usterka);
+            randomStatus = ReportStatus.values()[new Random().nextInt(ReportStatus.values().length)];
+        }
 
 
-        val usterka = new ReportEntity("Nazwa usterki", "Opis usterki", ReportStatus.NEW, user.getIdUser(),
-                                       kacper.getIdUser(),
-                                       new Date(), new Date());
-        reportRepository.save(usterka);
+        reportRepository.saveAll(reportEntityList);
 
         System.out.println("\n\n==========================================");
         System.out.println("=============  STARTED  ==================");

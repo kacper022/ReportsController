@@ -22,10 +22,6 @@ public class ReportsControllerApplication implements WebMvcConfigurer {
 				.allowedHeaders("*")
 				.allowCredentials(true);
 	}
-
-
-	public void addUserKeyToMap(Long id){
-
-	}
+	public void addUserKeyToMap(Long id){}
 }
 
