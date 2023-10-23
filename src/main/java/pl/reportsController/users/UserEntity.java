@@ -33,6 +33,7 @@ public class UserEntity {
     private LocalDateTime createDate;
     private LocalDateTime lastPasswordReset;
     private String loginToken;
+    private String isLogged;
 
     @Lob
     @Column(name = "userAvatar", length = 1000)

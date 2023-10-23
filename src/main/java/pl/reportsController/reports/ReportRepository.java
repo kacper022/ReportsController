@@ -14,4 +14,6 @@ public interface ReportRepository extends CrudRepository<ReportEntity, Long> {
 
     @Query("UPDATE ReportEntity re SET re.reportStatus = ?2 WHERE re.id = ?1")
     void updateReportStatus(Long idReport, ReportStatus status);
+
+    Iterable<ReportEntity> findAllByClientId(long client_id);
 }

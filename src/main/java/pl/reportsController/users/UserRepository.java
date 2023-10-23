@@ -48,4 +48,5 @@ public interface UserRepository extends CrudRepository<UserEntity, Long> {
     Optional<UserEntity> findUserWithCustomerById(@Param("id") Long id);
 
 
+
 }
