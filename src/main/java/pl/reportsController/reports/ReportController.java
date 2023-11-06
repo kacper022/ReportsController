@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import pl.reportsController.addresses.AddressRepository;
 import pl.reportsController.roles.ERole;
 import pl.reportsController.roles.RoleEntity;
@@ -17,7 +16,8 @@ import pl.reportsController.users.UserRepository;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Optional;
+import java.util.Base64;
+import java.util.Date;
 import java.util.Set;
 
 @RestController
@@ -41,28 +41,59 @@ public class ReportController {
         return allReports;
     }
 
-    @GetMapping("/getById")
-    public String getReportById(HttpServletResponse response,
-                                @RequestBody ReportEntity re) {
+    @PostMapping("/getById")
+    public ResponseEntity<String> getReportById(HttpServletResponse response,
+                                                @RequestBody ReportEntity re) {
+
         if (reportRepository.findById(re.getId()) == null) {
-            return "Brak adresu w bazie";
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-        return reportRepository.findById(re.getId()).toString();
+        JSONObject element = new JSONObject();
+        ReportEntity report = reportRepository.findReportById(re.getId());
+        element.put("id", report.getId());
+        element.put("name", report.getName());
+        element.put("description", report.getDescription());
+        element.put("reportStatus", report.getReportStatus());
+        element.put("createDate", report.getCreateDate());
+        element.put("endDate", report.getEndDate());
+        element.put("modificationDate", report.getUpdateDate());
+        element.put("userRealisingReport", report.getUsersRealisingReport());
+        element.put("reportImg" , report.getReportPhoto());
+
+        return new ResponseEntity<>(element.toString(), HttpStatus.OK);
     }
 
     @GetMapping("/getByName")
-    public Iterable<ReportEntity> getRepotrsByName(HttpServletResponse response,
+    public Iterable<ReportEntity> getReportsByName(HttpServletResponse response,
                                                    @RequestBody ReportEntity re) {
         return reportRepository.findByNameContainingIgnoreCase(re.getName());
     }
-
+    @Transactional
     @PostMapping("/createNewReport")
-    public void createNewReport(HttpServletResponse response,
-                                @RequestBody ReportEntity re) throws URISyntaxException {
+    public ResponseEntity<String> createNewReport(@RequestParam("name") String name,
+                                                  @RequestParam("description") String description,
+                                                  @RequestParam("clientId") Long clientId,
+                                                  @RequestParam("reportPhoto") MultipartFile reportPhoto) throws URISyntaxException, IOException {
 
-        ReportEntity asd = new ReportEntity();
-        ReportEntity savedReportEntity = reportRepository.save(re);
-        System.out.println("Created new report");
+        ReportEntity report = new ReportEntity();
+        report.setName(name);
+        report.setDescription(description);
+        report.setClientId(clientId);
+        report.setCreateDate(new Date());
+        report.setUpdateDate(new Date());
+        report.setReportStatus(ReportStatus.NEW);
+
+        if (!reportPhoto.isEmpty()) {
+            if (reportPhoto != null) {
+                String imageBase64 = Base64.getEncoder().encodeToString(reportPhoto.getBytes());
+                report.setReportPhoto(imageBase64);
+            }
+        }
+
+        reportRepository.save(report);
+        System.out.println("Dodano usterkę: " + report.getId());
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @DeleteMapping
@@ -73,23 +104,6 @@ public class ReportController {
         } else {
             System.out.println("Deleted report: " + reportRepository.findById(re.getId()));
             reportRepository.deleteById(re.getId());
-        }
-    }
-
-    @Transactional
-    @PatchMapping("/{reportId}/update-photo")
-    public ResponseEntity<Void> updateReportPhoto(
-            @PathVariable Long reportId, MultipartHttpServletRequest request) throws IOException {
-        MultipartFile photo = request.getFile("photo");
-        Optional<ReportEntity> reportEntityOptional = reportRepository.findById(reportId);
-
-        if (!reportEntityOptional.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            ReportEntity re = reportEntityOptional.get();
-            System.out.println(photo.getName() + " " + photo.getContentType());
-            reportRepository.updateReportPhoto(photo.getBytes(), re.getId());
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
     }
 

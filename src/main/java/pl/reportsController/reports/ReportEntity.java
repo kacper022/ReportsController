@@ -3,9 +3,7 @@ package pl.reportsController.reports;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pl.reportsController.customers.CustomerEntity;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
 
@@ -29,8 +27,9 @@ public class ReportEntity {
     private Date endDate;
     private Date updateDate;
 
-    @Column(nullable = true)
-    private byte[] reportPhoto;
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String reportPhoto;
 
 
     public ReportEntity(String name, String description, Long clientId, Date createDate, Date updateDate) {
@@ -67,7 +66,7 @@ public class ReportEntity {
         this.reportStatus = reportStatus;
     }
 
-    public ReportEntity(String name, String description, ReportStatus reportStatus, byte[] reportPhoto) {
+    public ReportEntity(String name, String description, ReportStatus reportStatus, String reportPhoto) {
         this.name = name;
         this.description = description;
         this.reportStatus = reportStatus;
@@ -95,7 +94,7 @@ public class ReportEntity {
 
     @Override
     public String toString() {
-        return "ReportEntity{" + "id=" + id + ", name='" + name + '\'' + ", description='" + description + '\'' + ", clientId=" + clientId + ", usersRealisingReport=" + usersRealisingReport + ", reportStatus=" + reportStatus + ", createDate=" + createDate + ", endDate=" + endDate + ", updateDate=" + updateDate + ", reportPhoto=" + Arrays.toString(
-                reportPhoto) + '}';
+        return "ReportEntity{" + "id=" + id + ", name='" + name + '\'' + ", description='" + description + '\'' + ", clientId=" + clientId + ", usersRealisingReport=" + usersRealisingReport + ", reportStatus=" + reportStatus + ", createDate=" + createDate + ", endDate=" + endDate + ", updateDate=" + updateDate + ", reportPhoto=" +
+                reportPhoto + '}';
     }
 }
