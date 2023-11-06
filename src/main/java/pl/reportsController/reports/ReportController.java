@@ -28,8 +28,7 @@ public class ReportController {
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
 
-    public ReportController(ReportRepository reportRepository,
-                            AddressRepository addressRepository, UserRepository userRepository) {
+    public ReportController(ReportRepository reportRepository, AddressRepository addressRepository, UserRepository userRepository) {
         this.reportRepository = reportRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
@@ -58,7 +57,7 @@ public class ReportController {
         element.put("endDate", report.getEndDate());
         element.put("modificationDate", report.getUpdateDate());
         element.put("userRealisingReport", report.getUsersRealisingReport());
-        element.put("reportImg" , report.getReportPhoto());
+        element.put("reportImg", report.getReportPhoto());
 
         return new ResponseEntity<>(element.toString(), HttpStatus.OK);
     }
@@ -68,12 +67,14 @@ public class ReportController {
                                                    @RequestBody ReportEntity re) {
         return reportRepository.findByNameContainingIgnoreCase(re.getName());
     }
+
     @Transactional
     @PostMapping("/createNewReport")
-    public ResponseEntity<String> createNewReport(@RequestParam("name") String name,
-                                                  @RequestParam("description") String description,
-                                                  @RequestParam("clientId") Long clientId,
-                                                  @RequestParam("reportPhoto") MultipartFile reportPhoto) throws URISyntaxException, IOException {
+    public ResponseEntity<String> createNewReport(
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            @RequestParam("clientId") Long clientId,
+            @RequestParam("reportPhoto") MultipartFile reportPhoto) throws URISyntaxException, IOException {
 
         ReportEntity report = new ReportEntity();
         report.setName(name);
@@ -95,6 +96,35 @@ public class ReportController {
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+    @Transactional
+    @PostMapping("/updateReport")
+    public ResponseEntity<String> updateReport(
+            @RequestParam(name = "idReport", required = false) Long idReport,
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "description", required = false) String description,
+            @RequestParam(name = "clientId", required = false) Long clientId,
+            @RequestParam(name = "reportPhoto", required = false) MultipartFile reportPhoto) throws URISyntaxException, IOException {
+
+        ReportEntity report = new ReportEntity();
+        report.setId(idReport);
+        report.setName(name);
+        report.setDescription(description);
+        report.setUpdateDate(new Date());
+        report.setClientId(clientId);
+
+        if (reportPhoto != null) {
+            String imageBase64 = Base64.getEncoder().encodeToString(reportPhoto.getBytes());
+            report.setReportPhoto(imageBase64);
+        }
+
+        reportRepository.updateReportByReportIdAndClientId(report.getId(), report.getClientId(), report.getName(), report.getDescription(),
+                                                           report.getReportPhoto(),report.getUpdateDate());
+        System.out.println("Zaaktualizowano usterkę: " + report.getId());
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
 
     @DeleteMapping
     public void deleteReportById(HttpServletResponse response,

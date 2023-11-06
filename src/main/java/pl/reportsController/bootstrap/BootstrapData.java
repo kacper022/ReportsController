@@ -107,7 +107,7 @@ public class BootstrapData implements CommandLineRunner {
         ReportStatus randomStatus = ReportStatus.values()[new Random().nextInt(ReportStatus.values().length)];
 
         List<ReportEntity> reportEntityList = new ArrayList<ReportEntity>();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             val usterka = new ReportEntity("Nazwa usterki" + i, "Opis usterki" + i, randomStatus, user.getIdUser(),
                                            kacper.getIdUser(),
                                            new Date(), new Date());
