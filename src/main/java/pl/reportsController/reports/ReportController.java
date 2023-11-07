@@ -163,19 +163,36 @@ public class ReportController {
 
     @PostMapping("/getAllUserReports")
     public ResponseEntity<String> getAllUserReports(HttpServletResponse response,
-                                                    @RequestBody UserEntity user) {
+                                                    @RequestParam("idUser") Long idUser,
+                                                    @RequestParam("isLogged") boolean isLogged,
+                                                    @RequestParam("advReq") boolean advReq
+                                                   ) {
 
-        if (user.getIdUser() == null || !user.getIsLogged().equals("true")) {
+        if (idUser < 0 || !isLogged ) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
+
+        UserEntity user = userRepository.getById(idUser);
+
         JSONArray object = new JSONArray();
         JSONObject element = new JSONObject();
         Set<RoleEntity> userRoles = userRepository.findRolesByUserId(user.getIdUser());
-        if (userRoles.stream().anyMatch(role -> ERole.ADMINISTRATOR.equals(role.getRoleName()))) {
-            // TODO: rzeczy dla admina
+        if (userRoles.stream().anyMatch(role -> ERole.ADMINISTRATOR.equals(role.getRoleName())) && advReq) {
+            Iterable<ReportEntity> reports = reportRepository.findAll();
+            for (ReportEntity r : reports) {
+                element.put("id", r.getId());
+                element.put("name", r.getName());
+                element.put("description", r.getDescription());
+                element.put("reportStatus", r.getReportStatus());
+                element.put("createDate", r.getCreateDate());
+                element.put("endDate", r.getEndDate());
+                element.put("modificationDate", r.getUpdateDate());
+                object.put(element);
+                element = new JSONObject();
+            }
             return new ResponseEntity<>(object.toString(), HttpStatus.OK);
-        } else if (userRoles.stream().anyMatch(role -> ERole.CUSTOMER.equals(role.getRoleName()))) {
-            Iterable<ReportEntity> reports = reportRepository.findAllByClientId(user.getIdUser());
+        } else if (userRoles.stream().anyMatch(role -> ERole.CUSTOMER.equals(role.getRoleName()) || ERole.ADMINISTRATOR.equals(role.getRoleName()))) {
+            Iterable<ReportEntity> reports = reportRepository.findAllByClientIdOrderByUpdateDateDesc(user.getIdUser());
             for (ReportEntity r : reports) {
                 element.put("id", r.getId());
                 element.put("name", r.getName());

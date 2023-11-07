@@ -47,6 +47,6 @@ public interface UserRepository extends CrudRepository<UserEntity, Long> {
     @Query("SELECT u FROM UserEntity u JOIN FETCH u.customerEntity WHERE u.idUser = :id")
     Optional<UserEntity> findUserWithCustomerById(@Param("id") Long id);
 
-
-
+    @Query
+    Iterable<UserEntity> findUserByUserRole(ERole role);
 }

@@ -1,5 +1,7 @@
 package pl.reportsController.reports;
 
+import jakarta.persistence.OrderBy;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -18,7 +20,8 @@ public interface ReportRepository extends CrudRepository<ReportEntity, Long> {
     @Query("UPDATE ReportEntity re SET re.reportStatus = ?2 WHERE re.id = ?1")
     void updateReportStatus(Long idReport, ReportStatus status);
 
-    Iterable<ReportEntity> findAllByClientId(long client_id);
+    @OrderBy
+    Iterable<ReportEntity> findAllByClientIdOrderByUpdateDateDesc(long client_id);
 
     @Query("SELECT re FROM ReportEntity re WHERE re.id=?1")
     ReportEntity findReportById(long reportId);
