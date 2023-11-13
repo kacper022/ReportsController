@@ -13,6 +13,8 @@ import java.util.Date;
 public interface ReportRepository extends CrudRepository<ReportEntity, Long> {
 
     Iterable<ReportEntity> findByNameContainingIgnoreCase(String name);
+    @Query("SELECT r FROM ReportEntity r ORDER BY r.updateDate DESC")
+    Iterable<ReportEntity> findAllOrderByUpdateDateDesc();
     @Modifying
     @Query("UPDATE ReportEntity SET reportPhoto = :photo WHERE id= :reportId")
     void updateReportPhoto(@Param("photo")byte[] photo, @Param("reportId")Long id);
@@ -31,4 +33,17 @@ public interface ReportRepository extends CrudRepository<ReportEntity, Long> {
             ".clientId = ?2")
     void updateReportByReportIdAndClientId(long reportId, long idCustomer, String name, String desc, String img, Date dt);
 
+    @Modifying
+    @Transactional
+    @Query("update ReportEntity re set re.name = ?2, re.description = ?3, re.reportPhoto = ?4, re.updateDate=?5," +
+            " re.usersRealisingReport = ?6, re.reportStatus=?7 where re.id = ?1")
+    void updateReportByReportIdAndClientIdAndUserRealising(long reportId, String name, String desc, String img, Date dt,
+                                                           long idUserRealisingReport, ReportStatus reportStatus);
+
+    @Modifying
+    @Transactional
+    @Query("update ReportEntity re set re.name = ?2, re.description = ?3,  re.updateDate=?4," +
+            " re.usersRealisingReport = ?5, re.reportStatus=?6 where re.id = ?1")
+    void updateReportByReportIdAndClientIdAndUserRealisingWithoutPhoto(long reportId, String name, String desc, Date dt,
+                                                                       long idUserRealisingReport, ReportStatus reportStatus);
 }

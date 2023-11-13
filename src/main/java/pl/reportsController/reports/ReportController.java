@@ -49,6 +49,10 @@ public class ReportController {
         }
         JSONObject element = new JSONObject();
         ReportEntity report = reportRepository.findReportById(re.getId());
+        String relisingUserName = report.getUsersRealisingReport() != null ?
+                userRepository.findById(report.getUsersRealisingReport()).get().getCustomerEntity()
+                        .getFirstName() + " " + userRepository.findById(report.getUsersRealisingReport()).get().getCustomerEntity()
+                        .getLastName() : "";
         element.put("id", report.getId());
         element.put("name", report.getName());
         element.put("description", report.getDescription());
@@ -56,8 +60,18 @@ public class ReportController {
         element.put("createDate", report.getCreateDate());
         element.put("endDate", report.getEndDate());
         element.put("modificationDate", report.getUpdateDate());
-        element.put("userRealisingReport", report.getUsersRealisingReport());
+        element.put("userRealisingReport", relisingUserName);
         element.put("reportImg", report.getReportPhoto());
+        JSONArray jarray = new JSONArray();
+        JSONObject userRealisingJSON = new JSONObject();
+        userRealisingJSON.put("value", report.getUsersRealisingReport());
+        userRealisingJSON.put("label",
+                              report.getUsersRealisingReport() != null ?
+                                      userRepository.findById(report.getUsersRealisingReport()).get().getCustomerEntity()
+                                              .getFirstName() + " " + userRepository.findById(report.getUsersRealisingReport()).get().getCustomerEntity()
+                                              .getLastName() : "");
+        jarray.put(userRealisingJSON);
+        element.put("defaultUserRealising", jarray);
 
         return new ResponseEntity<>(element.toString(), HttpStatus.OK);
     }
@@ -74,7 +88,7 @@ public class ReportController {
             @RequestParam("name") String name,
             @RequestParam("description") String description,
             @RequestParam("clientId") Long clientId,
-            @RequestParam("reportPhoto") MultipartFile reportPhoto) throws URISyntaxException, IOException {
+            @RequestParam(value = "reportPhoto", required = false) MultipartFile reportPhoto) throws URISyntaxException, IOException {
 
         ReportEntity report = new ReportEntity();
         report.setName(name);
@@ -84,11 +98,9 @@ public class ReportController {
         report.setUpdateDate(new Date());
         report.setReportStatus(ReportStatus.NEW);
 
-        if (!reportPhoto.isEmpty()) {
-            if (reportPhoto != null) {
-                String imageBase64 = Base64.getEncoder().encodeToString(reportPhoto.getBytes());
-                report.setReportPhoto(imageBase64);
-            }
+        if (reportPhoto != null) {
+            String imageBase64 = Base64.getEncoder().encodeToString(reportPhoto.getBytes());
+            report.setReportPhoto(imageBase64);
         }
 
         reportRepository.save(report);
@@ -100,26 +112,55 @@ public class ReportController {
     @Transactional
     @PostMapping("/updateReport")
     public ResponseEntity<String> updateReport(
+            @RequestParam(name = "idUser", required = false) Long idUser,
             @RequestParam(name = "idReport", required = false) Long idReport,
             @RequestParam(name = "name", required = false) String name,
             @RequestParam(name = "description", required = false) String description,
             @RequestParam(name = "clientId", required = false) Long clientId,
-            @RequestParam(name = "reportPhoto", required = false) MultipartFile reportPhoto) throws URISyntaxException, IOException {
+            @RequestParam(name = "reportPhoto", required = false) MultipartFile reportPhoto,
+            @RequestParam(name = "idUserRelisingReport", required = false) Long idUserRelisingReport,
+            @RequestParam(name = "reportStatus", required = false) ReportStatus reportStatus) throws URISyntaxException,
+            IOException {
 
         ReportEntity report = new ReportEntity();
         report.setId(idReport);
         report.setName(name);
         report.setDescription(description);
         report.setUpdateDate(new Date());
-        report.setClientId(clientId);
+
+        if (clientId != null) {
+            report.setClientId(clientId);
+        }
 
         if (reportPhoto != null) {
             String imageBase64 = Base64.getEncoder().encodeToString(reportPhoto.getBytes());
             report.setReportPhoto(imageBase64);
         }
 
-        reportRepository.updateReportByReportIdAndClientId(report.getId(), report.getClientId(), report.getName(), report.getDescription(),
-                                                           report.getReportPhoto(),report.getUpdateDate());
+        if (idUser != null ) {
+            if (idUserRelisingReport != null) {
+                report.setUsersRealisingReport(idUserRelisingReport);
+            }
+            if (reportStatus != null) {
+                report.setReportStatus(reportStatus);
+            }
+            if(report.getReportPhoto() != null) {
+                reportRepository.updateReportByReportIdAndClientIdAndUserRealising(report.getId(), report.getName(),
+                                                                                   report.getDescription(),
+                                                                                   report.getReportPhoto(), report.getUpdateDate(),
+                                                                                   report.getUsersRealisingReport(),
+                                                                                   report.getReportStatus());
+            } else {
+                reportRepository.updateReportByReportIdAndClientIdAndUserRealisingWithoutPhoto(report.getId(), report.getName(),
+                                                                                   report.getDescription(),report.getUpdateDate(),
+                                                                                   report.getUsersRealisingReport(),
+                                                                                   report.getReportStatus());
+            }
+        } else {
+            reportRepository.updateReportByReportIdAndClientId(report.getId(), report.getClientId(), report.getName(),
+                                                               report.getDescription(),
+                                                               report.getReportPhoto(), report.getUpdateDate());
+        }
         System.out.println("Zaaktualizowano usterkę: " + report.getId());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -168,7 +209,7 @@ public class ReportController {
                                                     @RequestParam("advReq") boolean advReq
                                                    ) {
 
-        if (idUser < 0 || !isLogged ) {
+        if (idUser < 0 || !isLogged) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
@@ -178,7 +219,7 @@ public class ReportController {
         JSONObject element = new JSONObject();
         Set<RoleEntity> userRoles = userRepository.findRolesByUserId(user.getIdUser());
         if (userRoles.stream().anyMatch(role -> ERole.ADMINISTRATOR.equals(role.getRoleName())) && advReq) {
-            Iterable<ReportEntity> reports = reportRepository.findAll();
+            Iterable<ReportEntity> reports = reportRepository.findAllOrderByUpdateDateDesc();
             for (ReportEntity r : reports) {
                 element.put("id", r.getId());
                 element.put("name", r.getName());
@@ -191,7 +232,8 @@ public class ReportController {
                 element = new JSONObject();
             }
             return new ResponseEntity<>(object.toString(), HttpStatus.OK);
-        } else if (userRoles.stream().anyMatch(role -> ERole.CUSTOMER.equals(role.getRoleName()) || ERole.ADMINISTRATOR.equals(role.getRoleName()))) {
+        } else if (userRoles.stream()
+                .anyMatch(role -> ERole.CUSTOMER.equals(role.getRoleName()) || ERole.ADMINISTRATOR.equals(role.getRoleName()))) {
             Iterable<ReportEntity> reports = reportRepository.findAllByClientIdOrderByUpdateDateDesc(user.getIdUser());
             for (ReportEntity r : reports) {
                 element.put("id", r.getId());
