@@ -251,4 +251,17 @@ public class ReportController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
+
+    @PostMapping("/getChartData")
+    public ResponseEntity<String> getChartCounter(){
+        JSONObject element = new JSONObject();
+
+        element.put("done", reportRepository.getReportsByStatus(ReportStatus.DONE));
+        element.put("inProgress",
+                    reportRepository.getReportsByStatus(ReportStatus.IN_PROGRESS)+reportRepository.getReportsByStatus(ReportStatus.IN_ANALYZE));
+        element.put("new", reportRepository.getReportsByStatus(ReportStatus.NEW));
+        element.put("canceled", reportRepository.getReportsByStatus(ReportStatus.CANCELED));
+
+        return new ResponseEntity<>(element.toString(), HttpStatus.OK);
+    }
 }

@@ -46,4 +46,7 @@ public interface ReportRepository extends CrudRepository<ReportEntity, Long> {
             " re.usersRealisingReport = ?5, re.reportStatus=?6 where re.id = ?1")
     void updateReportByReportIdAndClientIdAndUserRealisingWithoutPhoto(long reportId, String name, String desc, Date dt,
                                                                        long idUserRealisingReport, ReportStatus reportStatus);
+
+    @Query("SELECT count(re) FROM ReportEntity re where re.reportStatus = ?1")
+    int getReportsByStatus(ReportStatus reportStatus);
 }
