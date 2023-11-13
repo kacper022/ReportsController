@@ -167,15 +167,19 @@ public class ReportController {
     }
 
 
-    @DeleteMapping
-    public void deleteReportById(HttpServletResponse response,
-                                 @RequestBody ReportEntity re) {
-        if (!reportRepository.existsById(re.getId())) {
-            throw new RuntimeException();
-        } else {
-            System.out.println("Deleted report: " + reportRepository.findById(re.getId()));
-            reportRepository.deleteById(re.getId());
+    @DeleteMapping("/deleteReport")
+    public ResponseEntity<String> deleteReportById(HttpServletResponse response,
+                                 @RequestParam(value = "idReport", required = true) long idReport) {
+        if(idReport > 0) {
+            if (!reportRepository.existsById(idReport)) {
+                throw new RuntimeException();
+            } else {
+                System.out.println("Deleted report: " + reportRepository.findById(idReport));
+                reportRepository.deleteById(idReport);
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
         }
+        return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
     }
 
     @PostMapping("/updateStatus")
