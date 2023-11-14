@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.reportsController.customers.CustomerEntity;
 import pl.reportsController.customers.CustomerRepository;
+import pl.reportsController.reports.ReportEntity;
 
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +32,10 @@ public class AddressEntity {
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = true)
     private CustomerEntity customer;
+
+
+    @OneToMany(mappedBy = "addressEntity", cascade = CascadeType.ALL)
+    private List<ReportEntity> reportEntity;
 
     public AddressEntity(String street, String streetNumber){
         this.street = street;
@@ -57,4 +62,15 @@ public class AddressEntity {
                 '}';
     }
 
+    public String getFullAddressString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(street);
+        sb.append(" "+streetNumber);
+        if(apartmentNumber!= null){
+            sb.append("/"+apartmentNumber);
+        }
+        sb.append(" "+city);
+        sb.append(" "+zipCode);
+        return sb.toString();
+    }
 }

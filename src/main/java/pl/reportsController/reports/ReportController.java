@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import pl.reportsController.addresses.AddressEntity;
 import pl.reportsController.addresses.AddressRepository;
 import pl.reportsController.roles.ERole;
 import pl.reportsController.roles.RoleEntity;
@@ -53,6 +54,14 @@ public class ReportController {
                 userRepository.findById(report.getUsersRealisingReport()).get().getCustomerEntity()
                         .getFirstName() + " " + userRepository.findById(report.getUsersRealisingReport()).get().getCustomerEntity()
                         .getLastName() : "";
+        String clientDataString = "";
+        if (userRepository.getById(report.getClientId()) != null) {
+            if (userRepository.getById(report.getClientId()).getCustomerEntity() != null) {
+                clientDataString =
+                        userRepository.getById(report.getClientId()).getCustomerEntity().getFirstName() + " " + userRepository.getById(
+                                report.getClientId()).getCustomerEntity().getLastName();
+            }
+        }
         element.put("id", report.getId());
         element.put("name", report.getName());
         element.put("description", report.getDescription());
@@ -62,13 +71,17 @@ public class ReportController {
         element.put("modificationDate", report.getUpdateDate());
         element.put("userRealisingReport", relisingUserName);
         element.put("reportImg", report.getReportPhoto());
+        element.put("address", report.getAddressEntity() == null ? "" : report.getAddressEntity().getFullAddressString());
+        element.put("clientWhoAddReport", clientDataString);
+
         JSONArray jarray = new JSONArray();
         JSONObject userRealisingJSON = new JSONObject();
         userRealisingJSON.put("value", report.getUsersRealisingReport());
         userRealisingJSON.put("label",
                               report.getUsersRealisingReport() != null ?
                                       userRepository.findById(report.getUsersRealisingReport()).get().getCustomerEntity()
-                                              .getFirstName() + " " + userRepository.findById(report.getUsersRealisingReport()).get().getCustomerEntity()
+                                              .getFirstName() + " " + userRepository.findById(report.getUsersRealisingReport()).get()
+                                              .getCustomerEntity()
                                               .getLastName() : "");
         jarray.put(userRealisingJSON);
         element.put("defaultUserRealising", jarray);
@@ -88,7 +101,8 @@ public class ReportController {
             @RequestParam("name") String name,
             @RequestParam("description") String description,
             @RequestParam("clientId") Long clientId,
-            @RequestParam(value = "reportPhoto", required = false) MultipartFile reportPhoto) throws URISyntaxException, IOException {
+            @RequestParam(value = "reportPhoto", required = false) MultipartFile reportPhoto,
+            @RequestParam(value = "reportAddress", required = false) long idAddress) throws URISyntaxException, IOException {
 
         ReportEntity report = new ReportEntity();
         report.setName(name);
@@ -97,6 +111,14 @@ public class ReportController {
         report.setCreateDate(new Date());
         report.setUpdateDate(new Date());
         report.setReportStatus(ReportStatus.NEW);
+        if(idAddress > 0 &&addressRepository.existsById(idAddress)){
+            try {
+                AddressEntity address = addressRepository.getAddresById(idAddress);
+                report.setAddressEntity(address);
+            } catch (Exception e){
+                System.out.println(e);
+            }
+        }
 
         if (reportPhoto != null) {
             String imageBase64 = Base64.getEncoder().encodeToString(reportPhoto.getBytes());
@@ -106,7 +128,7 @@ public class ReportController {
         reportRepository.save(report);
         System.out.println("Dodano usterkę: " + report.getId());
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Transactional
@@ -137,14 +159,14 @@ public class ReportController {
             report.setReportPhoto(imageBase64);
         }
 
-        if (idUser != null ) {
+        if (idUser != null) {
             if (idUserRelisingReport != null) {
                 report.setUsersRealisingReport(idUserRelisingReport);
             }
             if (reportStatus != null) {
                 report.setReportStatus(reportStatus);
             }
-            if(report.getReportPhoto() != null) {
+            if (report.getReportPhoto() != null) {
                 reportRepository.updateReportByReportIdAndClientIdAndUserRealising(report.getId(), report.getName(),
                                                                                    report.getDescription(),
                                                                                    report.getReportPhoto(), report.getUpdateDate(),
@@ -152,9 +174,10 @@ public class ReportController {
                                                                                    report.getReportStatus());
             } else {
                 reportRepository.updateReportByReportIdAndClientIdAndUserRealisingWithoutPhoto(report.getId(), report.getName(),
-                                                                                   report.getDescription(),report.getUpdateDate(),
-                                                                                   report.getUsersRealisingReport(),
-                                                                                   report.getReportStatus());
+                                                                                               report.getDescription(),
+                                                                                               report.getUpdateDate(),
+                                                                                               report.getUsersRealisingReport(),
+                                                                                               report.getReportStatus());
             }
         } else {
             reportRepository.updateReportByReportIdAndClientId(report.getId(), report.getClientId(), report.getName(),
@@ -169,8 +192,8 @@ public class ReportController {
 
     @DeleteMapping("/deleteReport")
     public ResponseEntity<String> deleteReportById(HttpServletResponse response,
-                                 @RequestParam(value = "idReport", required = true) long idReport) {
-        if(idReport > 0) {
+                                                   @RequestParam(value = "idReport", required = true) long idReport) {
+        if (idReport > 0) {
             if (!reportRepository.existsById(idReport)) {
                 throw new RuntimeException();
             } else {
@@ -257,14 +280,36 @@ public class ReportController {
     }
 
     @PostMapping("/getChartData")
-    public ResponseEntity<String> getChartCounter(){
+    public ResponseEntity<String> getChartCounter(
+            @RequestParam(name = "idUser", required = false) long idUser,
+            @RequestParam(name = "userRole", required = true) String roleName) {
         JSONObject element = new JSONObject();
 
-        element.put("done", reportRepository.getReportsByStatus(ReportStatus.DONE));
-        element.put("inProgress",
-                    reportRepository.getReportsByStatus(ReportStatus.IN_PROGRESS)+reportRepository.getReportsByStatus(ReportStatus.IN_ANALYZE));
-        element.put("new", reportRepository.getReportsByStatus(ReportStatus.NEW));
-        element.put("canceled", reportRepository.getReportsByStatus(ReportStatus.CANCELED));
+        if (ERole.ADMINISTRATOR.name().equalsIgnoreCase(roleName)) {
+            element.put("done", reportRepository.getReportsByStatus(ReportStatus.DONE));
+            element.put("inProgress",
+                        reportRepository.getReportsByStatus(ReportStatus.IN_PROGRESS) + reportRepository.getReportsByStatus(
+                                ReportStatus.IN_ANALYZE));
+            element.put("new", reportRepository.getReportsByStatus(ReportStatus.NEW));
+            element.put("canceled", reportRepository.getReportsByStatus(ReportStatus.CANCELED));
+
+        } else if (ERole.OFFICE.name().equalsIgnoreCase(roleName)) {
+            element.put("done", reportRepository.getTechnicReportsByStatus(ReportStatus.DONE, idUser));
+            element.put("inProgress",
+                        reportRepository.getTechnicReportsByStatus(ReportStatus.IN_PROGRESS,
+                                                                   idUser) + reportRepository.getTechnicReportsByStatus(
+                                ReportStatus.IN_ANALYZE, idUser));
+            element.put("new", reportRepository.getTechnicReportsByStatus(ReportStatus.NEW, idUser));
+            element.put("canceled", reportRepository.getTechnicReportsByStatus(ReportStatus.CANCELED, idUser));
+
+        } else if (ERole.CUSTOMER.name().equalsIgnoreCase(roleName)) {
+            element.put("done", reportRepository.getCustomerReportsByStatus(ReportStatus.DONE, idUser));
+            element.put("inProgress",
+                        reportRepository.getCustomerReportsByStatus(ReportStatus.IN_PROGRESS, idUser) + reportRepository.getReportsByStatus(
+                                ReportStatus.IN_ANALYZE));
+            element.put("new", reportRepository.getCustomerReportsByStatus(ReportStatus.NEW, idUser));
+            element.put("canceled", reportRepository.getCustomerReportsByStatus(ReportStatus.CANCELED, idUser));
+        }
 
         return new ResponseEntity<>(element.toString(), HttpStatus.OK);
     }

@@ -86,10 +86,13 @@ public class CustomerController {
                     case CUSTOMER -> {
                         return new ResponseEntity<>(dataToReturn.put("role", ERole.CUSTOMER).toString(), HttpStatus.OK);
                     }
+                    case OFFICE -> {
+                        return new ResponseEntity<>(dataToReturn.put("role", ERole.OFFICE).toString(), HttpStatus.OK);
+                    }
                 }
             }
         }
-        return new ResponseEntity<>(dataToReturn.put("role", ERole.ADMINISTRATOR).toString(), HttpStatus.OK);
+        return new ResponseEntity<>(dataToReturn.put("role", ERole.ANONYMOUS).toString(), HttpStatus.OK);
     }
     @Transactional
     @PostMapping("/GetSimpleUserData")

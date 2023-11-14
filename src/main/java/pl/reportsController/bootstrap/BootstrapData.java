@@ -66,8 +66,20 @@ public class BootstrapData implements CommandLineRunner {
         customerRole.setRoleName(ERole.CUSTOMER);
         user.addRole(customerRole);
         users.add(user);
-        userRepository.saveAll(users);
 
+        val tech = new UserEntity();
+        tech.setLogin("tech");
+        tech.setPassword("tech");
+        tech.setEmail("tech@tech.pl");
+        tech.setUserActive(true);
+        tech.setCreateDate(ldt);
+        RoleEntity techRole = new RoleEntity();
+        techRole.setRoleName(ERole.OFFICE);
+        tech.addRole(techRole);
+        users.add(tech);
+
+        // Zapis uzytkownikow do bazy danych
+        userRepository.saveAll(users);
 
         //Create customer profile
         List<CustomerEntity> customers = new ArrayList();
@@ -85,6 +97,14 @@ public class BootstrapData implements CommandLineRunner {
         user.setCustomerEntity(customerProfileUser);
         customerProfileUser.setUserEntity(user);
 
+        CustomerEntity customerProfileTech = new CustomerEntity();
+        customerProfileTech.setLastName("Technik");
+        customerProfileTech.setFirstName("Pan");
+        customers.add(customerProfileTech);
+        customerProfileTech.setUserEntity(tech);
+
+        customerRepository.saveAll(customers);
+
         //Create address
         List<AddressEntity> listaAdresow = new ArrayList<>();
         val ulica = new AddressEntity("Morelowa", "12", "1", "Warszawa", "00-001");
@@ -92,20 +112,9 @@ public class BootstrapData implements CommandLineRunner {
         val ulica2 = new AddressEntity("Zielona", "2", "10", "Zielona Góra", "66-002");
         val ulica3 = new AddressEntity("Cerwona", "1", "1", "Toruń", " 87-100");
         listaAdresow.addAll(List.of(new AddressEntity[]{ulica, ulica1, ulica2, ulica3}));
-        addressRepository.saveAll(listaAdresow);
 
-        //Creating simple customer
-        val janusz = new CustomerEntity();
-        janusz.setFirstName("Janusz");
-        janusz.setLastName("Nowak");
-        customers.add(janusz);
-
-//        customerProfileUser.setAddresses(listaAdresow);
-
-        customerRepository.saveAll(customers);
 
         ReportStatus randomStatus = ReportStatus.values()[new Random().nextInt(ReportStatus.values().length)];
-
         List<ReportEntity> reportEntityList = new ArrayList<ReportEntity>();
         for (int i = 0; i < 10; i++) {
             val usterka = new ReportEntity("Nazwa usterki" + i, "Opis usterki" + i, randomStatus, user.getIdUser(),
@@ -114,9 +123,16 @@ public class BootstrapData implements CommandLineRunner {
             reportEntityList.add(usterka);
             randomStatus = ReportStatus.values()[new Random().nextInt(ReportStatus.values().length)];
         }
+        val usterka = new ReportEntity("Nazwa usterki99", "Opis usterki99", randomStatus, user.getIdUser(),
+                                       kacper.getIdUser(),
+                                       new Date(), new Date());
+        usterka.setAddressEntity(ulica);
+        reportEntityList.add(usterka);
 
 
+        addressRepository.saveAll(listaAdresow);
         reportRepository.saveAll(reportEntityList);
+
 
         System.out.println("\n\n==========================================");
         System.out.println("=============  STARTED  ==================");

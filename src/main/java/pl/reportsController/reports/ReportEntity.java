@@ -3,6 +3,7 @@ package pl.reportsController.reports;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.reportsController.addresses.AddressEntity;
 
 import java.util.Date;
 import java.util.Objects;
@@ -21,11 +22,14 @@ public class ReportEntity {
     private String description;
     private Long clientId;
     private Long usersRealisingReport;
-
     private ReportStatus reportStatus;
     private Date createDate;
     private Date endDate;
     private Date updateDate;
+
+    @OneToOne
+    @JoinColumn(name = "address_id", referencedColumnName = "id")
+    private AddressEntity addressEntity;
 
     @Lob
     @Column(columnDefinition = "TEXT")
