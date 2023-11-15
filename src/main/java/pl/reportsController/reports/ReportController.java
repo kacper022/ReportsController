@@ -73,6 +73,7 @@ public class ReportController {
         element.put("reportImg", report.getReportPhoto());
         element.put("address", report.getAddressEntity() == null ? "" : report.getAddressEntity().getFullAddressString());
         element.put("clientWhoAddReport", clientDataString);
+        element.put("technicReportPhoto", report.getTechnicReportPhoto());
 
         JSONArray jarray = new JSONArray();
         JSONObject userRealisingJSON = new JSONObject();
@@ -111,11 +112,11 @@ public class ReportController {
         report.setCreateDate(new Date());
         report.setUpdateDate(new Date());
         report.setReportStatus(ReportStatus.NEW);
-        if(idAddress > 0 &&addressRepository.existsById(idAddress)){
+        if (idAddress > 0 && addressRepository.existsById(idAddress)) {
             try {
                 AddressEntity address = addressRepository.getAddresById(idAddress);
                 report.setAddressEntity(address);
-            } catch (Exception e){
+            } catch (Exception e) {
                 System.out.println(e);
             }
         }
@@ -141,7 +142,8 @@ public class ReportController {
             @RequestParam(name = "clientId", required = false) Long clientId,
             @RequestParam(name = "reportPhoto", required = false) MultipartFile reportPhoto,
             @RequestParam(name = "idUserRelisingReport", required = false) Long idUserRelisingReport,
-            @RequestParam(name = "reportStatus", required = false) ReportStatus reportStatus) throws URISyntaxException,
+            @RequestParam(name = "reportStatus", required = false) ReportStatus reportStatus,
+            @RequestParam(name = "reportTechnicPhoto", required = false) MultipartFile reportTechnicPhoto) throws URISyntaxException,
             IOException {
 
         ReportEntity report = new ReportEntity();
@@ -159,6 +161,11 @@ public class ReportController {
             report.setReportPhoto(imageBase64);
         }
 
+        if (reportTechnicPhoto != null) {
+            String imageBase64 = Base64.getEncoder().encodeToString(reportTechnicPhoto.getBytes());
+            report.setTechnicReportPhoto(imageBase64);
+        }
+
         if (idUser != null) {
             if (idUserRelisingReport != null) {
                 report.setUsersRealisingReport(idUserRelisingReport);
@@ -167,11 +174,17 @@ public class ReportController {
                 report.setReportStatus(reportStatus);
             }
             if (report.getReportPhoto() != null) {
-                reportRepository.updateReportByReportIdAndClientIdAndUserRealising(report.getId(), report.getName(),
+                reportRepository.updateReportByReportIdAndClientIdAndUserRealisingWithUserPhoto(report.getId(), report.getName(),
                                                                                    report.getDescription(),
                                                                                    report.getReportPhoto(), report.getUpdateDate(),
                                                                                    report.getUsersRealisingReport(),
                                                                                    report.getReportStatus());
+            } else if (report.getReportStatus() !=null) {
+                reportRepository.updateReportByReportIdAndClientIdAndUserRealisingWithTechnicPhoto(report.getId(), report.getName(),
+                                                                                                   report.getDescription(),
+                                                                                                   report.getTechnicReportPhoto(), report.getUpdateDate(),
+                                                                                                   report.getUsersRealisingReport(),
+                                                                                                   report.getReportStatus());
             } else {
                 reportRepository.updateReportByReportIdAndClientIdAndUserRealisingWithoutPhoto(report.getId(), report.getName(),
                                                                                                report.getDescription(),

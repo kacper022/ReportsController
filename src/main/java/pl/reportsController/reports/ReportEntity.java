@@ -35,6 +35,12 @@ public class ReportEntity {
     @Column(columnDefinition = "TEXT")
     private String reportPhoto;
 
+    //Elementy zwiazane z technikiem
+    @Column(columnDefinition = "TEXT")
+    private String technicReportPhoto;
+
+    private String technicDescription;
+
 
     public ReportEntity(String name, String description, Long clientId, Date createDate, Date updateDate) {
         this.name = name;

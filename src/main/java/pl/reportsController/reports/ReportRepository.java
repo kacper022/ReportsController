@@ -37,9 +37,15 @@ public interface ReportRepository extends CrudRepository<ReportEntity, Long> {
     @Transactional
     @Query("update ReportEntity re set re.name = ?2, re.description = ?3, re.reportPhoto = ?4, re.updateDate=?5," +
             " re.usersRealisingReport = ?6, re.reportStatus=?7 where re.id = ?1")
-    void updateReportByReportIdAndClientIdAndUserRealising(long reportId, String name, String desc, String img, Date dt,
+    void updateReportByReportIdAndClientIdAndUserRealisingWithUserPhoto(long reportId, String name, String desc, String img, Date dt,
                                                            long idUserRealisingReport, ReportStatus reportStatus);
 
+    @Modifying
+    @Transactional
+    @Query("update ReportEntity re set re.name = ?2, re.description = ?3, re.technicReportPhoto = ?4, re.updateDate=?5," +
+            " re.usersRealisingReport = ?6, re.reportStatus=?7 where re.id = ?1")
+    void updateReportByReportIdAndClientIdAndUserRealisingWithTechnicPhoto(long reportId, String name, String desc, String img, Date dt,
+                                                           long idUserRealisingReport, ReportStatus reportStatus);
     @Modifying
     @Transactional
     @Query("update ReportEntity re set re.name = ?2, re.description = ?3,  re.updateDate=?4," +
