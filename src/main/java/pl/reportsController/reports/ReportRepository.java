@@ -1,7 +1,6 @@
 package pl.reportsController.reports;
 
 import jakarta.persistence.OrderBy;
-import org.springframework.core.annotation.Order;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -13,11 +12,15 @@ import java.util.Date;
 public interface ReportRepository extends CrudRepository<ReportEntity, Long> {
 
     Iterable<ReportEntity> findByNameContainingIgnoreCase(String name);
+
     @Query("SELECT r FROM ReportEntity r ORDER BY r.updateDate DESC")
     Iterable<ReportEntity> findAllOrderByUpdateDateDesc();
+
     @Modifying
     @Query("UPDATE ReportEntity SET reportPhoto = :photo WHERE id= :reportId")
-    void updateReportPhoto(@Param("photo")byte[] photo, @Param("reportId")Long id);
+    void updateReportPhoto(
+            @Param("photo") byte[] photo,
+            @Param("reportId") Long id);
 
     @Query("UPDATE ReportEntity re SET re.reportStatus = ?2 WHERE re.id = ?1")
     void updateReportStatus(Long idReport, ReportStatus status);
@@ -27,6 +30,7 @@ public interface ReportRepository extends CrudRepository<ReportEntity, Long> {
 
     @Query("SELECT re FROM ReportEntity re WHERE re.id=?1")
     ReportEntity findReportById(long reportId);
+
     @Modifying
     @Transactional
     @Query("update ReportEntity re set re.name = ?3, re.description = ?4, re.reportPhoto = ?5, re.updateDate=?6 where re.id = ?1 and re" +
@@ -38,14 +42,25 @@ public interface ReportRepository extends CrudRepository<ReportEntity, Long> {
     @Query("update ReportEntity re set re.name = ?2, re.description = ?3, re.reportPhoto = ?4, re.updateDate=?5," +
             " re.usersRealisingReport = ?6, re.reportStatus=?7 where re.id = ?1")
     void updateReportByReportIdAndClientIdAndUserRealisingWithUserPhoto(long reportId, String name, String desc, String img, Date dt,
-                                                           long idUserRealisingReport, ReportStatus reportStatus);
+                                                                        long idUserRealisingReport, ReportStatus reportStatus);
 
     @Modifying
     @Transactional
     @Query("update ReportEntity re set re.name = ?2, re.description = ?3, re.technicReportPhoto = ?4, re.updateDate=?5," +
             " re.usersRealisingReport = ?6, re.reportStatus=?7 where re.id = ?1")
     void updateReportByReportIdAndClientIdAndUserRealisingWithTechnicPhoto(long reportId, String name, String desc, String img, Date dt,
-                                                           long idUserRealisingReport, ReportStatus reportStatus);
+                                                                           long idUserRealisingReport, ReportStatus reportStatus);
+
+    @Modifying
+    @Transactional
+    @Query("update ReportEntity re set re.name = ?2, re.description = ?3, re.technicReportPhoto = ?4, re.updateDate=?5," +
+            " re.usersRealisingReport = ?6, re.reportStatus=?7, re.technicDescription=?8 where re.id = ?1")
+    void updateReportByReportIdAndClientIdAndUserRealisingWithTechnicPhotoAndDescription(long reportId, String name, String desc,
+                                                                                         String img, Date dt,
+                                                                                         long idUserRealisingReport,
+                                                                                         ReportStatus reportStatus,
+                                                                                         String technicDescription);
+
     @Modifying
     @Transactional
     @Query("update ReportEntity re set re.name = ?2, re.description = ?3,  re.updateDate=?4," +

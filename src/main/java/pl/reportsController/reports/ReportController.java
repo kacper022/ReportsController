@@ -74,6 +74,7 @@ public class ReportController {
         element.put("address", report.getAddressEntity() == null ? "" : report.getAddressEntity().getFullAddressString());
         element.put("clientWhoAddReport", clientDataString);
         element.put("technicReportPhoto", report.getTechnicReportPhoto());
+        element.put("technicDescription", report.getTechnicDescription());
 
         JSONArray jarray = new JSONArray();
         JSONObject userRealisingJSON = new JSONObject();
@@ -143,7 +144,8 @@ public class ReportController {
             @RequestParam(name = "reportPhoto", required = false) MultipartFile reportPhoto,
             @RequestParam(name = "idUserRelisingReport", required = false) Long idUserRelisingReport,
             @RequestParam(name = "reportStatus", required = false) ReportStatus reportStatus,
-            @RequestParam(name = "reportTechnicPhoto", required = false) MultipartFile reportTechnicPhoto) throws URISyntaxException,
+            @RequestParam(name = "reportTechnicPhoto", required = false) MultipartFile reportTechnicPhoto,
+            @RequestParam(name = "technicDescription", required = false) String technicDescription) throws URISyntaxException,
             IOException {
 
         ReportEntity report = new ReportEntity();
@@ -175,16 +177,29 @@ public class ReportController {
             }
             if (report.getReportPhoto() != null) {
                 reportRepository.updateReportByReportIdAndClientIdAndUserRealisingWithUserPhoto(report.getId(), report.getName(),
-                                                                                   report.getDescription(),
-                                                                                   report.getReportPhoto(), report.getUpdateDate(),
-                                                                                   report.getUsersRealisingReport(),
-                                                                                   report.getReportStatus());
-            } else if (report.getReportStatus() !=null) {
-                reportRepository.updateReportByReportIdAndClientIdAndUserRealisingWithTechnicPhoto(report.getId(), report.getName(),
-                                                                                                   report.getDescription(),
-                                                                                                   report.getTechnicReportPhoto(), report.getUpdateDate(),
-                                                                                                   report.getUsersRealisingReport(),
-                                                                                                   report.getReportStatus());
+                                                                                                report.getDescription(),
+                                                                                                report.getReportPhoto(),
+                                                                                                report.getUpdateDate(),
+                                                                                                report.getUsersRealisingReport(),
+                                                                                                report.getReportStatus());
+            } else if (report.getReportStatus() != null) {
+                if (report.getTechnicDescription() != null) {
+                    reportRepository.updateReportByReportIdAndClientIdAndUserRealisingWithTechnicPhoto(report.getId(), report.getName(),
+                                                                                                       report.getDescription(),
+                                                                                                       report.getTechnicReportPhoto(),
+                                                                                                       report.getUpdateDate(),
+                                                                                                       report.getUsersRealisingReport(),
+                                                                                                       report.getReportStatus());
+                } else {
+                    reportRepository.updateReportByReportIdAndClientIdAndUserRealisingWithTechnicPhotoAndDescription(report.getId(),
+                                                                                                                     report.getName(),
+                                                                                                                     report.getDescription(),
+                                                                                                                     report.getTechnicReportPhoto(),
+                                                                                                                     report.getUpdateDate(),
+                                                                                                                     report.getUsersRealisingReport(),
+                                                                                                                     report.getReportStatus(),
+                                                                                                                     technicDescription);
+                }
             } else {
                 reportRepository.updateReportByReportIdAndClientIdAndUserRealisingWithoutPhoto(report.getId(), report.getName(),
                                                                                                report.getDescription(),
@@ -258,7 +273,8 @@ public class ReportController {
         JSONArray object = new JSONArray();
         JSONObject element = new JSONObject();
         Set<RoleEntity> userRoles = userRepository.findRolesByUserId(user.getIdUser());
-        if (userRoles.stream().anyMatch(role -> ERole.ADMINISTRATOR.equals(role.getRoleName())) && advReq) {
+        if ((userRoles.stream().anyMatch(role -> ERole.ADMINISTRATOR.equals(role.getRoleName())) || userRoles.stream()
+                .anyMatch(role -> ERole.OFFICE.equals(role.getRoleName()))) && advReq) {
             Iterable<ReportEntity> reports = reportRepository.findAllOrderByUpdateDateDesc();
             for (ReportEntity r : reports) {
                 element.put("id", r.getId());
@@ -268,6 +284,8 @@ public class ReportController {
                 element.put("createDate", r.getCreateDate());
                 element.put("endDate", r.getEndDate());
                 element.put("modificationDate", r.getUpdateDate());
+                element.put("is_important", user.getIdUser() == r.getUsersRealisingReport());
+
                 object.put(element);
                 element = new JSONObject();
             }
