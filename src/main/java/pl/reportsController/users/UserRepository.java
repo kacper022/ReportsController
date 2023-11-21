@@ -14,6 +14,8 @@ import java.util.Set;
 
 
 public interface UserRepository extends CrudRepository<UserEntity, Long> {
+    @Query("SELECT u from UserEntity u")
+    Iterable<UserEntity> getAllUsers();
     @Query("SELECT u.id FROM UserEntity u WHERE u.login = ?1 AND u.password = ?2 AND u.isUserActive=true")
     Long findIdByUsernameAndPassword(String login, String password);
 

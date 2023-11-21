@@ -77,5 +77,6 @@ public interface ReportRepository extends CrudRepository<ReportEntity, Long> {
     @Query("SELECT count(re) FROM ReportEntity re where re.reportStatus = ?1 and re.clientId = ?2")
     int getCustomerReportsByStatus(ReportStatus reportStatus, long customerId);
 
-
+    @Query("SELECT count(re) FROM ReportEntity re where re.reportStatus = ?1 and re.usersRealisingReport = ?2")
+    int getAllTechnicReportByStatus(ReportStatus reportStatus, long technicId);
 }

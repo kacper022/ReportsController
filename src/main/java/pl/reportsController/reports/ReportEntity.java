@@ -18,7 +18,9 @@ public class ReportEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Column(columnDefinition = "TEXT")
     private String name;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private Long clientId;
     private Long usersRealisingReport;
@@ -38,7 +40,7 @@ public class ReportEntity {
     //Elementy zwiazane z technikiem
     @Column(columnDefinition = "TEXT")
     private String technicReportPhoto;
-
+    @Column(columnDefinition = "TEXT")
     private String technicDescription;
 
 

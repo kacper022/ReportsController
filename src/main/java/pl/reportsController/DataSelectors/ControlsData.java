@@ -38,7 +38,7 @@ public class ControlsData {
         JSONArray arrayToReturn = new JSONArray();
         JSONObject element = new JSONObject();
 
-        for (UserEntity u : userRepository.findAll()) {
+        for (UserEntity u : userRepository.getAllUsers()) {
             if (u.getRoles().stream()
                     .anyMatch(role -> ERole.ADMINISTRATOR.equals(role.getRoleName()) || ERole.OFFICE.equals(role.getRoleName()))) {
                 element.put("value", u.getIdUser());
@@ -72,7 +72,7 @@ public class ControlsData {
         boolean load = true;
         int loopCounter = 5;
 
-        while (load && loopCounter>0) {
+        while (load && loopCounter > 0) {
             try {
                 for (AddressEntity address : addressRepository.getAllAddressesElements()) {
                     element.put("label", address.getFullAddressString());
@@ -88,5 +88,34 @@ public class ControlsData {
         }
 
         return new ResponseEntity<>(arrayToReturn.toString(), HttpStatus.OK);
+    }
+
+    @PostMapping("/getAdminReportChart")
+    public ResponseEntity<String> getChartForAdmin() {
+        JSONArray arrayToReturn = new JSONArray();
+        JSONObject object = new JSONObject();
+
+        JSONArray namesArray = new JSONArray();
+        JSONArray finishedArray = new JSONArray();
+        JSONArray realisingArray = new JSONArray();
+
+        for (UserEntity u : userRepository.findAll()) {
+            if (u.getRoles().stream()
+                    .anyMatch(role -> ERole.OFFICE.equals(role.getRoleName()))) {
+                namesArray.put(u.getCustomerEntity().getFirstName() + u.getCustomerEntity().getLastName());
+                finishedArray.put(reportRepository.getAllTechnicReportByStatus(ReportStatus.DONE, u.getIdUser()));
+                realisingArray.put(
+                        reportRepository.getAllTechnicReportByStatus(ReportStatus.IN_ANALYZE,
+                                                                     u.getIdUser()) + reportRepository.getAllTechnicReportByStatus(
+                                ReportStatus.IN_PROGRESS, u.getIdUser()));
+            }
+        }
+        object.put("names", namesArray);
+        object.put("finished", finishedArray);
+        object.put("realising", realisingArray);
+
+
+        return new ResponseEntity<>(object.toString(), HttpStatus.OK);
+
     }
 }

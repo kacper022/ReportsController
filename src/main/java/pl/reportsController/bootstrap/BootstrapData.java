@@ -78,6 +78,15 @@ public class BootstrapData implements CommandLineRunner {
         tech.addRole(techRole);
         users.add(tech);
 
+        val tech2 = new UserEntity();
+        tech2.setLogin("tech2");
+        tech2.setPassword("tech2");
+        tech2.setEmail("tech2@tech2.pl");
+        tech2.setUserActive(true);
+        tech2.setCreateDate(ldt);
+        tech2.addRole(techRole);
+        users.add(tech2);
+
         // Zapis uzytkownikow do bazy danych
         userRepository.saveAll(users);
 
@@ -103,6 +112,12 @@ public class BootstrapData implements CommandLineRunner {
         customers.add(customerProfileTech);
         customerProfileTech.setUserEntity(tech);
 
+        CustomerEntity customerProfileTech2 = new CustomerEntity();
+        customerProfileTech2.setLastName("Technik drugi");
+        customerProfileTech2.setFirstName("Pan");
+        customers.add(customerProfileTech2);
+        customerProfileTech2.setUserEntity(tech2);
+
         customerRepository.saveAll(customers);
 
         //Create address
@@ -117,13 +132,13 @@ public class BootstrapData implements CommandLineRunner {
         ReportStatus randomStatus = ReportStatus.values()[new Random().nextInt(ReportStatus.values().length)];
         List<ReportEntity> reportEntityList = new ArrayList<ReportEntity>();
         for (int i = 0; i < 10; i++) {
-            val usterka = new ReportEntity("Nazwa usterki" + i, "Opis usterki" + i, randomStatus, user.getIdUser(),
+            val usterka = new ReportEntity("Nazwa zgłoszenia" + i, "Opis zgłoszenia" + i, randomStatus, user.getIdUser(),
                                            kacper.getIdUser(),
                                            new Date(), new Date());
             reportEntityList.add(usterka);
             randomStatus = ReportStatus.values()[new Random().nextInt(ReportStatus.values().length)];
         }
-        val usterka = new ReportEntity("Nazwa usterki99", "Opis usterki99", randomStatus, user.getIdUser(),
+        val usterka = new ReportEntity("Nazwa zgłoszenia99", "Opis zgłoszenia99", randomStatus, user.getIdUser(),
                                        kacper.getIdUser(),
                                        new Date(), new Date());
         usterka.setAddressEntity(ulica);
