@@ -3,7 +3,6 @@ package pl.reportsController.reports;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -118,7 +117,7 @@ public class ReportController {
         report.setClientId(clientId);
         report.setCreateDate(new Date());
         report.setUpdateDate(new Date());
-        report.setReportStatus(ReportStatus.NEW);
+        report.setReportStatus(ReportStatus.NOWE);
         if (idAddress > 0 && addressRepository.existsById(idAddress)) {
             try {
                 AddressEntity address = addressRepository.getAddresById(idAddress);
@@ -277,7 +276,6 @@ public class ReportController {
         UserEntity user = userRepository.getById(idUser);
 
 
-
         JSONArray object = new JSONArray();
         JSONObject element = new JSONObject();
         Set<RoleEntity> userRoles = userRepository.findRolesByUserId(user.getIdUser());
@@ -341,7 +339,7 @@ public class ReportController {
             if (whereCounter > 0) {
                 sb.append(" where " + whereCriteria);
             }
-
+            sb.append(" ORDER BY report.update_date DESC");
             Iterable<ReportEntity> reports = entityManager.createNativeQuery(sb.toString(), ReportEntity.class).getResultList();
 
             for (ReportEntity r : reports) {
@@ -360,7 +358,68 @@ public class ReportController {
             return new ResponseEntity<>(object.toString(), HttpStatus.OK);
         } else if (userRoles.stream()
                 .anyMatch(role -> ERole.CUSTOMER.equals(role.getRoleName()) || ERole.ADMINISTRATOR.equals(role.getRoleName()))) {
-            Iterable<ReportEntity> reports = reportRepository.findAllByClientIdOrderByUpdateDateDesc(user.getIdUser());
+            StringBuilder sb = new StringBuilder();
+            sb.append("SELECT * FROM report ");
+            StringBuilder whereCriteria = new StringBuilder();
+            int whereCounter = 0;
+            for (String s : filters.keySet()) {
+                if (filters.get(s) != null && filters.get(s) != "" && !filters.get(s).toString().equalsIgnoreCase("null")) {
+                    switch (s) {
+                        case "dateFrom":
+                            if (!filters.get(s).toString().equalsIgnoreCase("undefined")) {
+                                if (whereCounter > 0) {
+                                    whereCriteria.append(" and ");
+                                }
+                                whereCriteria.append(
+                                        " report.create_date <= '" + new Timestamp((Long.valueOf(filters.get("dateFrom").toString()))) +
+                                                "' ");
+                                whereCounter++;
+                            }
+                            break;
+                        case "dateTo":
+                            if (!filters.get(s).toString().equalsIgnoreCase("undefined")) {
+                                if (whereCounter > 0) {
+                                    whereCriteria.append(" and ");
+                                }
+                                whereCriteria.append(
+                                        " report.create_date >= '" + new Timestamp((Long.valueOf(filters.get("dateTo").toString()))) + "'" +
+                                                " ");
+                                whereCounter++;
+                            }
+                            break;
+                        case "technicRealisingReport":
+                            if (!filters.get(s).toString().equalsIgnoreCase("")) {
+                                if (whereCounter > 0) {
+                                    whereCriteria.append(" and ");
+                                }
+                                whereCriteria.append(" report.users_realising_report = " + filters.get(s) + " ");
+
+                                whereCounter++;
+                            }
+                            break;
+                        case "reportStatus":
+                            if (!filters.get(s).toString().equalsIgnoreCase("")) {
+                                if (whereCounter > 0) {
+                                    whereCriteria.append(" and ");
+                                }
+                                whereCriteria.append(
+                                        " report.report_status = " + ReportStatus.valueOf(filters.get(s).toString()).ordinal() +
+                                                " ");
+                                whereCounter++;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            if (whereCounter > 0) {
+                sb.append(" where report.client_id = " + user.getIdUser() + " AND " + whereCriteria);
+            } else {
+                sb.append(" WHERE report.client_id = " + user.getIdUser());
+            }
+            sb.append(" ORDER BY report.update_date DESC");
+            Iterable<ReportEntity> reports = entityManager.createNativeQuery(sb.toString(), ReportEntity.class).getResultList();
             for (ReportEntity r : reports) {
                 element.put("id", r.getId());
                 element.put("name", r.getName());
@@ -385,29 +444,29 @@ public class ReportController {
         JSONObject element = new JSONObject();
 
         if (ERole.ADMINISTRATOR.name().equalsIgnoreCase(roleName)) {
-            element.put("done", reportRepository.getReportsByStatus(ReportStatus.DONE));
+            element.put("done", reportRepository.getReportsByStatus(ReportStatus.UKONCZONE));
             element.put("inProgress",
-                        reportRepository.getReportsByStatus(ReportStatus.IN_PROGRESS) + reportRepository.getReportsByStatus(
-                                ReportStatus.IN_ANALYZE));
-            element.put("new", reportRepository.getReportsByStatus(ReportStatus.NEW));
-            element.put("canceled", reportRepository.getReportsByStatus(ReportStatus.CANCELED));
+                        reportRepository.getReportsByStatus(ReportStatus.W_TRAKCIE_REALIZACJI) + reportRepository.getReportsByStatus(
+                                ReportStatus.W_TRAKCIE_ANALIZY));
+            element.put("new", reportRepository.getReportsByStatus(ReportStatus.NOWE));
+            element.put("canceled", reportRepository.getReportsByStatus(ReportStatus.ANULOWANE));
 
         } else if (ERole.OFFICE.name().equalsIgnoreCase(roleName)) {
-            element.put("done", reportRepository.getTechnicReportsByStatus(ReportStatus.DONE, idUser));
+            element.put("done", reportRepository.getTechnicReportsByStatus(ReportStatus.UKONCZONE, idUser));
             element.put("inProgress",
-                        reportRepository.getTechnicReportsByStatus(ReportStatus.IN_PROGRESS,
+                        reportRepository.getTechnicReportsByStatus(ReportStatus.W_TRAKCIE_REALIZACJI,
                                                                    idUser) + reportRepository.getTechnicReportsByStatus(
-                                ReportStatus.IN_ANALYZE, idUser));
-            element.put("new", reportRepository.getTechnicReportsByStatus(ReportStatus.NEW, idUser));
-            element.put("canceled", reportRepository.getTechnicReportsByStatus(ReportStatus.CANCELED, idUser));
+                                ReportStatus.W_TRAKCIE_ANALIZY, idUser));
+            element.put("new", reportRepository.getTechnicReportsByStatus(ReportStatus.NOWE, idUser));
+            element.put("canceled", reportRepository.getTechnicReportsByStatus(ReportStatus.ANULOWANE, idUser));
 
         } else if (ERole.CUSTOMER.name().equalsIgnoreCase(roleName)) {
-            element.put("done", reportRepository.getCustomerReportsByStatus(ReportStatus.DONE, idUser));
+            element.put("done", reportRepository.getCustomerReportsByStatus(ReportStatus.UKONCZONE, idUser));
             element.put("inProgress",
-                        reportRepository.getCustomerReportsByStatus(ReportStatus.IN_PROGRESS, idUser) + reportRepository.getReportsByStatus(
-                                ReportStatus.IN_ANALYZE));
-            element.put("new", reportRepository.getCustomerReportsByStatus(ReportStatus.NEW, idUser));
-            element.put("canceled", reportRepository.getCustomerReportsByStatus(ReportStatus.CANCELED, idUser));
+                        reportRepository.getCustomerReportsByStatus(ReportStatus.W_TRAKCIE_REALIZACJI, idUser) + reportRepository.getReportsByStatus(
+                                ReportStatus.W_TRAKCIE_ANALIZY));
+            element.put("new", reportRepository.getCustomerReportsByStatus(ReportStatus.NOWE, idUser));
+            element.put("canceled", reportRepository.getCustomerReportsByStatus(ReportStatus.ANULOWANE, idUser));
         }
 
         return new ResponseEntity<>(element.toString(), HttpStatus.OK);

@@ -103,11 +103,11 @@ public class ControlsData {
             if (u.getRoles().stream()
                     .anyMatch(role -> ERole.OFFICE.equals(role.getRoleName()))) {
                 namesArray.put(u.getCustomerEntity().getFirstName() + u.getCustomerEntity().getLastName());
-                finishedArray.put(reportRepository.getAllTechnicReportByStatus(ReportStatus.DONE, u.getIdUser()));
+                finishedArray.put(reportRepository.getAllTechnicReportByStatus(ReportStatus.UKONCZONE, u.getIdUser()));
                 realisingArray.put(
-                        reportRepository.getAllTechnicReportByStatus(ReportStatus.IN_ANALYZE,
+                        reportRepository.getAllTechnicReportByStatus(ReportStatus.W_TRAKCIE_ANALIZY,
                                                                      u.getIdUser()) + reportRepository.getAllTechnicReportByStatus(
-                                ReportStatus.IN_PROGRESS, u.getIdUser()));
+                                ReportStatus.W_TRAKCIE_REALIZACJI, u.getIdUser()));
             }
         }
         object.put("names", namesArray);

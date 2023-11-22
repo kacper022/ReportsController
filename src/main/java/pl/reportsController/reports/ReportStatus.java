@@ -1,5 +1,5 @@
 package pl.reportsController.reports;
 
 public enum ReportStatus {
-    DONE, IN_PROGRESS, NEW, IN_ANALYZE, CANCELED;
+    UKONCZONE, W_TRAKCIE_REALIZACJI, NOWE, W_TRAKCIE_ANALIZY, ANULOWANE;
 }
