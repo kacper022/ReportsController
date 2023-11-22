@@ -1,7 +1,9 @@
 package pl.reportsController.reports;
 
+import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import pl.reportsController.users.UserRepository;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Set;
@@ -28,11 +31,14 @@ public class ReportController {
     private final ReportRepository reportRepository;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
+    private final EntityManager entityManager;
 
-    public ReportController(ReportRepository reportRepository, AddressRepository addressRepository, UserRepository userRepository) {
+    public ReportController(ReportRepository reportRepository, AddressRepository addressRepository, UserRepository userRepository,
+                            EntityManager entityManager) {
         this.reportRepository = reportRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
+        this.entityManager = entityManager;
     }
 
     @GetMapping("/getAll")
@@ -261,8 +267,8 @@ public class ReportController {
     public ResponseEntity<String> getAllUserReports(HttpServletResponse response,
                                                     @RequestParam("idUser") Long idUser,
                                                     @RequestParam("isLogged") boolean isLogged,
-                                                    @RequestParam("advReq") boolean advReq
-                                                   ) {
+                                                    @RequestParam("advReq") boolean advReq,
+                                                    @RequestParam(value = "filterParameters", required = false) JSONObject filters) {
 
         if (idUser < 0 || !isLogged) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -270,12 +276,74 @@ public class ReportController {
 
         UserEntity user = userRepository.getById(idUser);
 
+
+
         JSONArray object = new JSONArray();
         JSONObject element = new JSONObject();
         Set<RoleEntity> userRoles = userRepository.findRolesByUserId(user.getIdUser());
         if ((userRoles.stream().anyMatch(role -> ERole.ADMINISTRATOR.equals(role.getRoleName())) || userRoles.stream()
                 .anyMatch(role -> ERole.OFFICE.equals(role.getRoleName()))) && advReq) {
-            Iterable<ReportEntity> reports = reportRepository.findAllOrderByUpdateDateDesc();
+            StringBuilder sb = new StringBuilder();
+            sb.append("SELECT * FROM report ");
+            StringBuilder whereCriteria = new StringBuilder();
+            int whereCounter = 0;
+            for (String s : filters.keySet()) {
+                if (filters.get(s) != null && filters.get(s) != "" && !filters.get(s).toString().equalsIgnoreCase("null")) {
+                    switch (s) {
+                        case "dateFrom":
+                            if (!filters.get(s).toString().equalsIgnoreCase("undefined")) {
+                                if (whereCounter > 0) {
+                                    whereCriteria.append(" and ");
+                                }
+                                whereCriteria.append(
+                                        " report.create_date <= '" + new Timestamp((Long.valueOf(filters.get("dateFrom").toString()))) +
+                                                "' ");
+                                whereCounter++;
+                            }
+                            break;
+                        case "dateTo":
+                            if (!filters.get(s).toString().equalsIgnoreCase("undefined")) {
+                                if (whereCounter > 0) {
+                                    whereCriteria.append(" and ");
+                                }
+                                whereCriteria.append(
+                                        " report.create_date >= '" + new Timestamp((Long.valueOf(filters.get("dateTo").toString()))) + "'" +
+                                                " ");
+                                whereCounter++;
+                            }
+                            break;
+                        case "technicRealisingReport":
+                            if (!filters.get(s).toString().equalsIgnoreCase("")) {
+                                if (whereCounter > 0) {
+                                    whereCriteria.append(" and ");
+                                }
+                                whereCriteria.append(" report.users_realising_report = " + filters.get(s) + " ");
+
+                                whereCounter++;
+                            }
+                            break;
+                        case "reportStatus":
+                            if (!filters.get(s).toString().equalsIgnoreCase("")) {
+                                if (whereCounter > 0) {
+                                    whereCriteria.append(" and ");
+                                }
+                                whereCriteria.append(
+                                        " report.report_status = " + ReportStatus.valueOf(filters.get(s).toString()).ordinal() +
+                                                " ");
+                                whereCounter++;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            if (whereCounter > 0) {
+                sb.append(" where " + whereCriteria);
+            }
+
+            Iterable<ReportEntity> reports = entityManager.createNativeQuery(sb.toString(), ReportEntity.class).getResultList();
+
             for (ReportEntity r : reports) {
                 element.put("id", r.getId());
                 element.put("name", r.getName());

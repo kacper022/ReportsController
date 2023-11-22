@@ -25,8 +25,11 @@ public class ReportEntity {
     private Long clientId;
     private Long usersRealisingReport;
     private ReportStatus reportStatus;
+    @Temporal(TemporalType.TIMESTAMP)
     private Date createDate;
+    @Temporal(TemporalType.TIMESTAMP)
     private Date endDate;
+    @Temporal(TemporalType.TIMESTAMP)
     private Date updateDate;
 
     @OneToOne
