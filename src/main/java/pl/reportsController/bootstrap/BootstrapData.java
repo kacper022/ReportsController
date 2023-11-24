@@ -4,6 +4,8 @@ import lombok.val;
 import org.joda.time.LocalDateTime;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import pl.reportsController.Configs.TechnicConfigRepository;
+import pl.reportsController.Configs.TechnicsConfig;
 import pl.reportsController.addresses.AddressEntity;
 import pl.reportsController.addresses.AddressRepository;
 import pl.reportsController.customers.CustomerEntity;
@@ -28,13 +30,16 @@ public class BootstrapData implements CommandLineRunner {
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
     private final AddressRepository addressRepository;
+    private final TechnicConfigRepository technicConfigRepository;
 
     public BootstrapData(ReportRepository reportRepository, UserRepository userRepository,
-                         CustomerRepository customerRepository, AddressRepository addressRepository, RoleRepository roleRepository) {
+                         CustomerRepository customerRepository, AddressRepository addressRepository, RoleRepository roleRepository,
+                         TechnicConfigRepository technicConfigRepository) {
         this.reportRepository = reportRepository;
         this.userRepository = userRepository;
         this.customerRepository = customerRepository;
         this.addressRepository = addressRepository;
+        this.technicConfigRepository = technicConfigRepository;
     }
 
     @Override
@@ -131,10 +136,17 @@ public class BootstrapData implements CommandLineRunner {
 
         ReportStatus randomStatus = ReportStatus.values()[new Random().nextInt(ReportStatus.values().length)];
         List<ReportEntity> reportEntityList = new ArrayList<ReportEntity>();
-        for (int i = 0; i < 10; i++) {
-            val usterka = new ReportEntity("Nazwa zgłoszenia" + i, "Opis zgłoszenia" + i, randomStatus, user.getIdUser(),
-                                           kacper.getIdUser(),
+        for (int i = 0; i < 30; i++) {
+            ReportEntity usterka;
+            if (i % 2 == 0) {
+                usterka = new ReportEntity("Nazwa zgłoszenia" + i, "Opis zgłoszenia" + i, randomStatus, user.getIdUser(),
+                                           tech.getIdUser(),
                                            new Date(), new Date());
+            } else {
+                usterka = new ReportEntity("Nazwa zgłoszenia" + i, "Opis zgłoszenia" + i, randomStatus, user.getIdUser(),
+                                           tech2.getIdUser(),
+                                           new Date(), new Date());
+            }
             reportEntityList.add(usterka);
             randomStatus = ReportStatus.values()[new Random().nextInt(ReportStatus.values().length)];
         }
@@ -148,6 +160,10 @@ public class BootstrapData implements CommandLineRunner {
         addressRepository.saveAll(listaAdresow);
         reportRepository.saveAll(reportEntityList);
 
+        TechnicsConfig techCfg = new TechnicsConfig(tech.getIdUser(),"rgb(225, 29, 72)");
+        TechnicsConfig tech2Cfg = new TechnicsConfig(tech2.getIdUser(), "rgb(192,132, 252)");
+        technicConfigRepository.save(tech2Cfg);
+        technicConfigRepository.save(techCfg);
 
         System.out.println("\n\n==========================================");
         System.out.println("=============  STARTED  ==================");

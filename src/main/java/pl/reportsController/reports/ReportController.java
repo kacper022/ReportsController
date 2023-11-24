@@ -9,8 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import pl.reportsController.Configs.TechnicConfigRepository;
 import pl.reportsController.addresses.AddressEntity;
 import pl.reportsController.addresses.AddressRepository;
+import pl.reportsController.reportsHistory.ReportHistoryEntity;
+import pl.reportsController.reportsHistory.ReportHistoryRepository;
 import pl.reportsController.roles.ERole;
 import pl.reportsController.roles.RoleEntity;
 import pl.reportsController.users.UserEntity;
@@ -31,13 +34,18 @@ public class ReportController {
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
     private final EntityManager entityManager;
+    private final TechnicConfigRepository technicConfigRepository;
+    private final ReportHistoryRepository reportHistoryRepository;
 
     public ReportController(ReportRepository reportRepository, AddressRepository addressRepository, UserRepository userRepository,
-                            EntityManager entityManager) {
+                            EntityManager entityManager, TechnicConfigRepository technicConfigRepository,
+                            ReportHistoryRepository reportHistoryRepository) {
         this.reportRepository = reportRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.entityManager = entityManager;
+        this.technicConfigRepository = technicConfigRepository;
+        this.reportHistoryRepository = reportHistoryRepository;
     }
 
     @GetMapping("/getAll")
@@ -55,7 +63,7 @@ public class ReportController {
         }
         JSONObject element = new JSONObject();
         ReportEntity report = reportRepository.findReportById(re.getId());
-        String relisingUserName = report.getUsersRealisingReport() != null ?
+        String realisingUserName = report.getUsersRealisingReport() != null ?
                 userRepository.findById(report.getUsersRealisingReport()).get().getCustomerEntity()
                         .getFirstName() + " " + userRepository.findById(report.getUsersRealisingReport()).get().getCustomerEntity()
                         .getLastName() : "";
@@ -74,7 +82,7 @@ public class ReportController {
         element.put("createDate", report.getCreateDate());
         element.put("endDate", report.getEndDate());
         element.put("modificationDate", report.getUpdateDate());
-        element.put("userRealisingReport", relisingUserName);
+        element.put("userRealisingReport", realisingUserName);
         element.put("reportImg", report.getReportPhoto());
         element.put("address", report.getAddressEntity() == null ? "" : report.getAddressEntity().getFullAddressString());
         element.put("clientWhoAddReport", clientDataString);
@@ -217,9 +225,12 @@ public class ReportController {
                                                                report.getDescription(),
                                                                report.getReportPhoto(), report.getUpdateDate());
         }
+        ReportHistoryEntity historyElement = new ReportHistoryEntity(idUser, new Date(), reportRepository.findReportById(report.getId()));
+        reportHistoryRepository.save(historyElement);
+
         System.out.println("Zaaktualizowano usterkę: " + report.getId());
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
@@ -285,61 +296,74 @@ public class ReportController {
             sb.append("SELECT * FROM report ");
             StringBuilder whereCriteria = new StringBuilder();
             int whereCounter = 0;
-            for (String s : filters.keySet()) {
-                if (filters.get(s) != null && filters.get(s) != "" && !filters.get(s).toString().equalsIgnoreCase("null")) {
-                    switch (s) {
-                        case "dateFrom":
-                            if (!filters.get(s).toString().equalsIgnoreCase("undefined")) {
-                                if (whereCounter > 0) {
-                                    whereCriteria.append(" and ");
+            if (filters != null) {
+                for (String s : filters.keySet()) {
+                    if (filters.get(s) != null && filters.get(s) != "" && !filters.get(s).toString().equalsIgnoreCase("null")) {
+                        switch (s) {
+                            case "dateFrom":
+                                if (!filters.get(s).toString().equalsIgnoreCase("undefined")) {
+                                    if (whereCounter > 0) {
+                                        whereCriteria.append(" and ");
+                                    }
+                                    whereCriteria.append(
+                                            " report.create_date <= '" + new Timestamp((Long.valueOf(filters.get("dateFrom").toString()))) +
+                                                    "' ");
+                                    whereCounter++;
                                 }
-                                whereCriteria.append(
-                                        " report.create_date <= '" + new Timestamp((Long.valueOf(filters.get("dateFrom").toString()))) +
-                                                "' ");
-                                whereCounter++;
-                            }
-                            break;
-                        case "dateTo":
-                            if (!filters.get(s).toString().equalsIgnoreCase("undefined")) {
-                                if (whereCounter > 0) {
-                                    whereCriteria.append(" and ");
+                                break;
+                            case "dateTo":
+                                if (!filters.get(s).toString().equalsIgnoreCase("undefined")) {
+                                    if (whereCounter > 0) {
+                                        whereCriteria.append(" and ");
+                                    }
+                                    whereCriteria.append(
+                                            " report.create_date >= '" + new Timestamp(
+                                                    (Long.valueOf(filters.get("dateTo").toString()))) + "'" +
+                                                    " ");
+                                    whereCounter++;
                                 }
-                                whereCriteria.append(
-                                        " report.create_date >= '" + new Timestamp((Long.valueOf(filters.get("dateTo").toString()))) + "'" +
-                                                " ");
-                                whereCounter++;
-                            }
-                            break;
-                        case "technicRealisingReport":
-                            if (!filters.get(s).toString().equalsIgnoreCase("")) {
-                                if (whereCounter > 0) {
-                                    whereCriteria.append(" and ");
-                                }
-                                whereCriteria.append(" report.users_realising_report = " + filters.get(s) + " ");
+                                break;
+                            case "technicRealisingReport":
+                                if (!filters.get(s).toString().equalsIgnoreCase("")) {
+                                    if (whereCounter > 0) {
+                                        whereCriteria.append(" and ");
+                                    }
+                                    whereCriteria.append(" report.users_realising_report = " + filters.get(s) + " ");
 
-                                whereCounter++;
-                            }
-                            break;
-                        case "reportStatus":
-                            if (!filters.get(s).toString().equalsIgnoreCase("")) {
-                                if (whereCounter > 0) {
-                                    whereCriteria.append(" and ");
+                                    whereCounter++;
                                 }
-                                whereCriteria.append(
-                                        " report.report_status = " + ReportStatus.valueOf(filters.get(s).toString()).ordinal() +
-                                                " ");
-                                whereCounter++;
-                            }
-                            break;
-                        default:
-                            break;
+                                break;
+                            case "reportStatus":
+                                if (!filters.get(s).toString().equalsIgnoreCase("")) {
+                                    if (whereCounter > 0) {
+                                        whereCriteria.append(" and ");
+                                    }
+                                    whereCriteria.append(
+                                            " report.report_status = " + ReportStatus.valueOf(filters.get(s).toString()).ordinal() +
+                                                    " ");
+                                    whereCounter++;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }
             if (whereCounter > 0) {
                 sb.append(" where " + whereCriteria);
             }
-            sb.append(" ORDER BY report.update_date DESC");
+
+            if (userRoles.stream().anyMatch(role -> ERole.OFFICE.equals(role.getRoleName()))) {
+                if (whereCounter > 0) {
+                    sb.append("AND report.users_realising_report = " + idUser + " ORDER BY report.update_date DESC");
+                } else {
+                    sb.append("where report.users_realising_report = " + idUser + " ORDER BY report.update_date DESC");
+                }
+            } else {
+                sb.append(" ORDER BY report.update_date DESC");
+            }
+
             Iterable<ReportEntity> reports = entityManager.createNativeQuery(sb.toString(), ReportEntity.class).getResultList();
 
             for (ReportEntity r : reports) {
@@ -351,6 +375,13 @@ public class ReportController {
                 element.put("endDate", r.getEndDate());
                 element.put("modificationDate", r.getUpdateDate());
                 element.put("is_important", user.getIdUser() == r.getUsersRealisingReport());
+                if (r.getUsersRealisingReport() != null) {
+                    if (technicConfigRepository.getTechnicConfig(r.getUsersRealisingReport()) != null) {
+                        element.put("technic_color", technicConfigRepository.getTechnicConfig(r.getUsersRealisingReport()).getColorData());
+                    } else {
+                        element.put("technic_color", "bg-white-300");
+                    }
+                }
 
                 object.put(element);
                 element = new JSONObject();
@@ -428,6 +459,7 @@ public class ReportController {
                 element.put("createDate", r.getCreateDate());
                 element.put("endDate", r.getEndDate());
                 element.put("modificationDate", r.getUpdateDate());
+
                 object.put(element);
                 element = new JSONObject();
             }
@@ -463,7 +495,8 @@ public class ReportController {
         } else if (ERole.CUSTOMER.name().equalsIgnoreCase(roleName)) {
             element.put("done", reportRepository.getCustomerReportsByStatus(ReportStatus.UKONCZONE, idUser));
             element.put("inProgress",
-                        reportRepository.getCustomerReportsByStatus(ReportStatus.W_TRAKCIE_REALIZACJI, idUser) + reportRepository.getReportsByStatus(
+                        reportRepository.getCustomerReportsByStatus(ReportStatus.W_TRAKCIE_REALIZACJI,
+                                                                    idUser) + reportRepository.getReportsByStatus(
                                 ReportStatus.W_TRAKCIE_ANALIZY));
             element.put("new", reportRepository.getCustomerReportsByStatus(ReportStatus.NOWE, idUser));
             element.put("canceled", reportRepository.getCustomerReportsByStatus(ReportStatus.ANULOWANE, idUser));
