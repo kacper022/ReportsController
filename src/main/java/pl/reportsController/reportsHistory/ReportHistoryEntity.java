@@ -15,6 +15,7 @@ import java.util.Objects;
 @Entity
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ReportHistoryEntity {
 
     @Id
