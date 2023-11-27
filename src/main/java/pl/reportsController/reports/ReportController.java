@@ -504,4 +504,26 @@ public class ReportController {
 
         return new ResponseEntity<>(element.toString(), HttpStatus.OK);
     }
+
+    @PostMapping("/getChartOutdated")
+    public ResponseEntity<String> getChartOutdated(
+            @RequestParam(name = "idUser", required = false) long idUser,
+            @RequestParam(name = "userRole", required = true) String roleName) {
+        JSONObject element = new JSONObject();
+
+        if (ERole.ADMINISTRATOR.name().equalsIgnoreCase(roleName)) {
+            element.put("done", reportRepository.getReportsByStatus(ReportStatus.UKONCZONE));
+            element.put("canceled", reportRepository.getReportsByStatus(ReportStatus.ANULOWANE));
+
+        } else if (ERole.OFFICE.name().equalsIgnoreCase(roleName)) {
+            element.put("done", reportRepository.getTechnicReportsByStatus(ReportStatus.UKONCZONE, idUser));
+            element.put("canceled", reportRepository.getTechnicReportsByStatus(ReportStatus.ANULOWANE, idUser));
+
+        } else if (ERole.CUSTOMER.name().equalsIgnoreCase(roleName)) {
+            element.put("done", reportRepository.getCustomerReportsByStatus(ReportStatus.UKONCZONE, idUser));
+            element.put("canceled", reportRepository.getCustomerReportsByStatus(ReportStatus.ANULOWANE, idUser));
+        }
+
+        return new ResponseEntity<>(element.toString(), HttpStatus.OK);
+    }
 }
