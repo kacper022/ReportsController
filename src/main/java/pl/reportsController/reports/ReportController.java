@@ -161,6 +161,7 @@ public class ReportController {
             @RequestParam(name = "technicDescription", required = false) String technicDescription) throws URISyntaxException,
             IOException {
 
+        ReportHistoryEntity historyElement;
         ReportEntity report = new ReportEntity();
         report.setId(idReport);
         report.setName(name);
@@ -220,12 +221,15 @@ public class ReportController {
                                                                                                report.getUsersRealisingReport(),
                                                                                                report.getReportStatus());
             }
+            historyElement = new ReportHistoryEntity(idUser, new Date(),
+                                                                         reportRepository.findReportById(report.getId()));
         } else {
             reportRepository.updateReportByReportIdAndClientId(report.getId(), report.getClientId(), report.getName(),
                                                                report.getDescription(),
                                                                report.getReportPhoto(), report.getUpdateDate());
+            historyElement = new ReportHistoryEntity(clientId, new Date(),
+                                                                         reportRepository.findReportById(report.getId()));
         }
-        ReportHistoryEntity historyElement = new ReportHistoryEntity(idUser, new Date(), reportRepository.findReportById(report.getId()));
         reportHistoryRepository.save(historyElement);
 
         System.out.println("Zaaktualizowano usterkę: " + report.getId());

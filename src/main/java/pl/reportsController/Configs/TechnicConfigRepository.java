@@ -5,6 +5,6 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface TechnicConfigRepository extends CrudRepository<TechnicsConfig, Long> {
 
-    @Query("select c from TechnicsConfig c where c.id_technic = ?1")
+    @Query("SELECT c FROM TechnicsConfig c WHERE c.id_technic = ?1")
     public TechnicsConfig getTechnicConfig(long id_technic);
 }
